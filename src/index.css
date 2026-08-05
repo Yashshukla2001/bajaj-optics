@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-ivory: #F6F3EE;
+  --color-ivory-dim: #EDE9E1;
+  --color-charcoal: #15171B;
+  --color-charcoal-soft: #1E2126;
+  --color-matte: #0A0B0D;
+  --color-silver: #C3C9CF;
+  --color-silver-dim: #8B9198;
+  --color-mist: #6F90A6;
+  --color-mist-bright: #8FB0C4;
+
+  --font-display: 'Helvetica Neue', Helvetica, Arial, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Helvetica Neue', Helvetica, Arial, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --tracking-luxe: 0.22em;
+  --breakpoint-xs: 420px;
+}
+
+* { -webkit-tap-highlight-color: transparent; }
+
+html { background: var(--color-matte); }
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-matte);
+  color: var(--color-ivory);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: var(--color-mist); color: var(--color-matte); }
+
+.glass {
+  background: rgba(246, 243, 238, 0.06);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid rgba(246, 243, 238, 0.12);
+}
+
+.glass-light {
+  background: rgba(21, 23, 27, 0.55);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.text-gradient-mist {
+  background: linear-gradient(120deg, #EDE9E1 10%, #8FB0C4 55%, #C3C9CF 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  letter-spacing: var(--tracking-luxe);
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  color: var(--color-mist-bright);
+}
+
+/* Helvetica reads better bold at display sizes — force every headline
+   (they're all written as "font-display font-normal" in the components)
+   to render bold, without needing to edit every section file by hand. */
+.font-display.font-normal {
+  font-weight: 700 !important;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(246,243,238,0.18); border-radius: 999px; }
+
+a:focus-visible, button:focus-visible, input:focus-visible,
+textarea:focus-visible, select:focus-visible {
+  outline: 2px solid var(--color-mist-bright);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+@keyframes ripple {
+  to { width: 480px; height: 480px; margin-left: -240px; margin-top: -240px; opacity: 0; }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes float0 {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-18px); }
+}
+@keyframes float1 {
+  0%, 100% { transform: translateY(0) translateX(0); }
+  50% { transform: translateY(14px) translateX(8px); }
+}
+@keyframes float2 {
+  0%, 100% { transform: translateY(0); opacity: 0.25; }
+  50% { transform: translateY(-10px); opacity: 0.6; }
+}
+
+@keyframes sheen {
+  0% { background-position: 200% 0%; }
+  100% { background-position: -50% 100%; }
+}
+/* Keep anchor-scrolled sections clear of the fixed navbar */
+/* Keep anchor-scrolled sections clear of the fixed navbar */
+html {
+  scroll-padding-top: var(--navbar-height, 64px);
+}
+
+section[id] {
+  scroll-margin-top: var(--navbar-height, 64px);
+}
