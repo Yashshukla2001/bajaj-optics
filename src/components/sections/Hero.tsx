@@ -54,7 +54,7 @@ const SLIDES = [
     orbY: '62%',
   },
 ] as const;
-const SLIDE_DURATION = 4000;
+const SLIDE_DURATION = 3000;
 
 export function Hero() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -139,7 +139,7 @@ export function Hero() {
       </div>
 
       <div ref={contentRef} className="relative z-10 max-w-3xl px-6 text-center">
-        <Eyebrow>{`${BUSINESS.city} · Est. 2001`}</Eyebrow>
+        <Eyebrow>{`${BUSINESS.city} · Est. 2007`}</Eyebrow>
 
         <div className="mt-4 h-[3.4em] sm:h-[2.4em] flex items-center justify-center">
           <AnimatePresence mode="wait">

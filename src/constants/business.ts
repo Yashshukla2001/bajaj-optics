@@ -9,13 +9,13 @@ export const BUSINESS = {
   subtitle:
     'A premium optical studio for prescription eyewear, sunglasses and precision eye care — trusted across the city for over two decades.',
   city: 'Dewas, Madhya Pradesh',
-  yearsOfTrust: 24,
-  whatsappNumber: '919999999999', // country code + number, no + or spaces
-  phoneNumber: '+91 99999 99999',
+  yearsOfTrust: 20,
+  whatsappNumber: '+91 99260 59960', // country code + number, no + or spaces
+  phoneNumber: '+91 99260 59960',
   email: 'hello@bajajoptics.in',
   instagramHandle: '@bajajoptics',
-  instagramUrl: 'https://instagram.com/bajajoptics',
-  address: 'Shop 12, Station Road, Dewas, Madhya Pradesh 455001',
+  instagramUrl: 'https://www.instagram.com/bajaj_optician?igsh=ZXFlZDg5ajJlOHY=',
+  address: 'G1 Maina Shree complex AB road, Dewas, Madhya Pradesh 455001',
   mapEmbedUrl:
     'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d117000!2d76.05!3d22.966!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjLCsDU4JzAwLjAiTiA3NsKwMDMnMDAuMCJF!5e0!3m2!1sen!2sin!4v1700000000000',
   mapDirectionsUrl: 'https://maps.google.com/?q=Bajaj+Optics+Dewas',
@@ -65,8 +65,8 @@ export const WHY_US = [
     desc: 'Transparent, fair pricing with no hidden costs — ever.',
   },
   {
-    title: '24 Years of Trust',
-    desc: `Serving ${BUSINESS.city} families since 2001, one clear view at a time.`,
+    title: '20 Years of Trust',
+    desc: `Serving ${BUSINESS.city} families since 2007, one clear view at a time.`,
   },
 ] as const;
 
@@ -139,11 +139,11 @@ export const REVIEWS = [
 ] as const;
 
 export const OWNER = {
-  name: 'Rakesh Bajaj',
+  name: 'Jeetu Bajaj',
   role: 'Founder & Chief Optometrist',
   quote:
     'Every pair of glasses we hand over carries a promise — that you will see the world a little more clearly than you did yesterday.',
-  bio: `Rakesh started Bajaj Optics in 2001 with a single chair and a single promise: honest eye care. Two decades later, that promise hasn't changed — only the number of families who trust it.`,
+  bio: `Jeetu started Bajaj Optics in 2007 with a single chair and a single promise: honest eye care. Two decades later, that promise hasn't changed — only the number of families who trust it.`,
 };
 
 export const FACE_SHAPES = [
