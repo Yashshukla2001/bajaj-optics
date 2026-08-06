@@ -13,7 +13,7 @@ export const BUSINESS = {
   whatsappNumber: '+91 99260 59960', // country code + number, no + or spaces
   phoneNumber: '+91 99260 59960',
   email: 'hello@bajajoptics.in',
-  instagramHandle: '@bajajoptics',
+  instagramHandle: '@bajaj_optician',
   instagramUrl: 'https://www.instagram.com/bajaj_optician?igsh=ZXFlZDg5ajJlOHY=',
   address: 'G1 Maina Shree complex AB road, Dewas, Madhya Pradesh 455001',
   mapEmbedUrl:
