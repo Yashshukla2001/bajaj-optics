@@ -10,7 +10,7 @@ export const BUSINESS = {
     'A premium optical studio for prescription eyewear, sunglasses and precision eye care — trusted across the city for over two decades.',
   city: 'Dewas, Madhya Pradesh',
   yearsOfTrust: 20,
-  whatsappNumber: '+91 99260 59960', // country code + number, no + or spaces
+  whatsappNumber: '919926059960', // country code + number, no + or spaces
   phoneNumber: '+91 99260 59960',
   email: 'hello@bajajoptics.in',
   instagramHandle: '@bajaj_optician',
