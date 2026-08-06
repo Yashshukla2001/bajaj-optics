@@ -1,18 +1,14 @@
 import { BUSINESS, NAV_LINKS } from '@/constants/business';
 import logoIcon from '@/assets/images/logo-icon.png';
 
-function LensLogo() {
-  return <img src={logoIcon} alt="" aria-hidden className="h-7 w-auto" />;
-}
-
 export function Footer() {
   return (
     <footer className="relative bg-matte border-t border-white/5 px-6 py-14">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
         <div className="text-center md:text-left">
           <div className="flex items-center justify-center md:justify-start gap-2.5 mb-1">
-          <img src={logoIcon} alt="" aria-hidden className="h-7 w-auto" />
-          <p className="font-display text-2xl text-ivory">{BUSINESS.name}</p>
+            <img src={logoIcon} alt="" aria-hidden className="h-7 w-auto" />
+            <p className="font-display text-2xl text-ivory">{BUSINESS.name}</p>
           </div>
           <p className="text-xs text-ivory/40 mt-1 font-light">
             © {new Date().getFullYear()} {BUSINESS.name}. Crafted by{' '}

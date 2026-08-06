@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HiXMark, HiBars3 } from 'react-icons/hi2';
-import { NAV_LINKS, BUSINESS, whatsappMessage } from '@/constants/business';
+import { NAV_LINKS, whatsappMessage } from '@/constants/business';
 import { buildWhatsAppLink } from '@/utils/whatsapp';
 import logoIcon from '@/assets/images/logo-color-icon-pill (1).png';
 

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   HiOutlineEye,
@@ -27,7 +27,7 @@ export function WhyUs() {
     return () => clearInterval(id);
   }, [paused]);
 
-return (
+  return (
     <section className="relative bg-matte py-14 sm:py-20 px-6 overflow-hidden">
       <div className="max-w-2xl mx-auto text-center mb-6">
         <Eyebrow>Why Bajaj Optics</Eyebrow>
@@ -122,7 +122,7 @@ return (
         })}
       </div>
 
-     <p className="text-center mt-5 text-xs text-ivory/30 font-mono tracking-wide">
+      <p className="text-center mt-5 text-xs text-ivory/30 font-mono tracking-wide">
         {BUSINESS.yearsOfTrust}+ years serving {BUSINESS.city.split(',')[0]} — tap a point to explore
       </p>
     </section>

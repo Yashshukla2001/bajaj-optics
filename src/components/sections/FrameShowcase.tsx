@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi2';
 import { openWhatsApp } from '@/utils/whatsapp';
 import { whatsappMessage } from '@/constants/business';
@@ -61,7 +61,7 @@ export function FrameShowcase() {
   }
 
   return (
-<section
+    <section
       id="frames"
       className="relative bg-matte py-14 sm:py-20 overflow-hidden"
     >
@@ -126,7 +126,7 @@ export function FrameShowcase() {
         })}
       </div>
 
-    {/* Controls */}
+      {/* Controls */}
       <div className="flex items-center justify-center gap-6 mt-6">
         <button
           onClick={() => go(-1)}
