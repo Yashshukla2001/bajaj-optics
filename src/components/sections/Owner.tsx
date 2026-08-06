@@ -6,7 +6,7 @@ import { Eyebrow } from '@/components/ui/SplitReveal';
 const CREDENTIALS = [
   { value: BUSINESS.yearsOfTrust, suffix: '+', label: 'Years Practicing' },
   { value: 40, suffix: 'K+', label: 'Patients Seen' },
-  { value: 2001, suffix: '', label: 'Studio Founded' },
+  { value: 2007, suffix: '', label: 'Studio Founded' },
 ];
 
 function CountUp({ value, suffix }: { value: number; suffix: string }) {
@@ -71,7 +71,7 @@ function FounderSeal() {
           <path id="sealPath" d="M60,60 m-44,0 a44,44 0 1,1 88,0 a44,44 0 1,1 -88,0" />
         </defs>
         <text fill="rgba(143,176,196,0.6)" fontSize="8" letterSpacing="3" fontFamily="var(--font-mono)">
-          <textPath href="#sealPath">FOUNDER · EST. 2001 · BAJAJ OPTICS ·</textPath>
+          <textPath href="#sealPath">FOUNDER · EST. 2007 · BAJAJ OPTICS ·</textPath>
         </text>
       </motion.svg>
       <div className="absolute inset-[18%] rounded-full glass flex items-center justify-center">
