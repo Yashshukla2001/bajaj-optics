@@ -74,7 +74,7 @@ function StoryMedallion() {
         </defs>
         <text fill="rgba(143,176,196,0.6)" fontSize="10.5" letterSpacing="4" fontFamily="var(--font-mono)">
           <textPath href="#ringPath">
-            EST. 2001 · {BUSINESS.city.toUpperCase()} · FREE EYE TEST · TRUSTED CARE ·
+            EST. 2007 · {BUSINESS.city.toUpperCase()} · FREE EYE TEST · TRUSTED CARE ·
           </textPath>
         </text>
       </motion.svg>
