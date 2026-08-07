@@ -17,14 +17,14 @@ export const BUSINESS = {
   instagramUrl: 'https://www.instagram.com/bajaj_optician?igsh=ZXFlZDg5ajJlOHY=',
   address: 'G1 Maina Shree complex AB road, Dewas, Madhya Pradesh 455001',
   mapEmbedUrl:
-    'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d117000!2d76.05!3d22.966!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjLCsDU4JzAwLjAiTiA3NsKwMDMnMDAuMCJF!5e0!3m2!1sen!2sin!4v1700000000000',
-  mapDirectionsUrl: 'https://maps.google.com/?q=Bajaj+Optics+Dewas',
+    'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3673.632220601156!2d76.0447065084516!3d22.96376801843799!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3963176647e6a267%3A0xb47762f84454df93!2sBajaj%20Optician!5e0!3m2!1sen!2sus!4v1786125963546!5m2!1sen!2sus',
+  mapDirectionsUrl: 'https://maps.app.goo.gl/dhMQdBFnsiekXRy17',
   timings: [
     { day: 'Monday – Saturday', hours: '10:00 AM – 9:00 PM' },
-    { day: 'Sunday', hours: '11:00 AM – 6:00 PM' },
+    { day: 'Sunday', hours: '11:00 AM – 9:00 PM' },
   ],
-  googleRating: 4.9,
-  googleReviewCount: 612,
+  googleRating: 4.7,
+  googleReviewCount: 201,
 } as const;
 
 export const whatsappMessage = {

@@ -46,14 +46,14 @@ export function BeforeAfterVision() {
 
  return (
     <section className="relative bg-matte py-14 sm:py-20 px-6 overflow-hidden">
-      <div className="max-w-xl mx-auto text-center mb-8">
+      <div className="max-w-xl mx-auto text-center mb-8 mt-6 sm:mt-1">
         <Eyebrow>See The Difference</Eyebrow>
         <SplitReveal
           as="h2"
           text="Turn the dial. Watch it resolve."
           className="font-display font-bold text-4xl sm:text-5xl text-ivory leading-tight"
         />
-        <p className="mt-3 text-ivory/45 text-sm">
+        <p className="mt-1 text-ivory/45 text-sm">
           Just like a real prescription check at{' '}
           <span className="text-mist-bright font-medium">{BUSINESS.name}</span> — drag the dial to bring
           the world into focus.
@@ -129,7 +129,7 @@ export function BeforeAfterVision() {
         </div>
 
         {/* The dial itself */}
-        <div className="flex flex-col items-center gap-6">
+        <div className="flex flex-col items-center gap-6 mt-6 sm:mt-1">
           <div
             ref={dialRef}
             onPointerDown={handlePointerDown}

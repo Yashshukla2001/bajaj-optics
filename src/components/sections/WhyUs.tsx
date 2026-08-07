@@ -29,7 +29,7 @@ export function WhyUs() {
 
   return (
     <section className="relative bg-matte py-14 sm:py-20 px-6 overflow-hidden">
-      <div className="max-w-2xl mx-auto text-center mb-6">
+      <div className="max-w-2xl mx-auto text-center mb-5">
         <Eyebrow>Why Bajaj Optics</Eyebrow>
         <SplitReveal
           as="h2"
