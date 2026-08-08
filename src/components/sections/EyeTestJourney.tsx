@@ -119,7 +119,7 @@ export function EyeTestJourney() {
 
   return (
     <section id="eye-test" ref={wrapRef} className="relative bg-matte">
-  <div className="relative h-[100svh] w-full overflow-hidden flex flex-col items-center px-6 pt-24 sm:pt-28">
+  <div className="relative h-[100svh] w-full overflow-hidden flex flex-col items-center px-6 pt-[calc(var(--navbar-height,64px)+2rem)]">
         <div className="text-center z-30 shrink-0">
           <Eyebrow>The Eye Test Journey</Eyebrow>
         </div>

@@ -27,13 +27,13 @@ export function LensReveal({ children, id, className, startRadius = 4 }: LensRev
         maskRef.current,
         { clipPath: `circle(${startRadius}% at 50% 42%)`, filter: 'blur(6px)' },
         {
-          clipPath: 'circle(75% at 50% 42%)',
+          clipPath: 'circle(150% at 50% 42%)',
           filter: 'blur(0px)',
           ease: 'none',
           scrollTrigger: {
             trigger: wrapRef.current,
             start: 'top 85%',
-            end: 'top 15%',
+            end: 'top 25%',
             scrub: true,
           },
         }

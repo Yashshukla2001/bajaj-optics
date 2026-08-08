@@ -6,6 +6,7 @@ import { BUSINESS, whatsappMessage } from '@/constants/business';
 import { buildWhatsAppLink } from '@/utils/whatsapp';
 import { MagneticButton } from '@/components/ui/MagneticButton';
 import { Eyebrow } from '@/components/ui/SplitReveal';
+import { useTheme } from '@/hooks/useTheme';
 import { HiOutlineCalendar } from 'react-icons/hi2';
 import { FaWhatsapp } from 'react-icons/fa';
 import eyonesHero from '@/assets/images/eyones-hero.jpg';
@@ -59,6 +60,7 @@ const SLIDE_DURATION = 3000;
 export function Hero() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const { theme } = useTheme();
   const [slide, setSlide] = useState(0);
 
   const mx = useMotionValue(0);
@@ -109,6 +111,7 @@ export function Hero() {
     <section
       id="top"
       ref={sectionRef}
+      data-theme={theme === 'dark' ? 'dark' : undefined}
       className="relative h-[100svh] w-full overflow-hidden bg-matte flex items-center justify-center"
     >
       {/* Rotating cinematic backdrop */}
@@ -132,10 +135,27 @@ export function Hero() {
             />
           </motion.div>
         </AnimatePresence>
-        {/* Dark scrim — keeps every photo on-brand and text legible regardless of source lighting */}
-        <div className="absolute inset-0 bg-matte/55" />
-        <div className="absolute inset-0 bg-gradient-to-t from-matte via-matte/50 to-matte/60" />
-        <div className="absolute inset-0 bg-gradient-to-b from-matte/70 via-transparent to-transparent h-40" />
+        {/* Scrim — cinematic dark in dark mode; in light mode a soft cream veil
+            that keeps the photo visible and gives the navy/gold text legibility */}
+        {theme === 'dark' ? (
+          <>
+            <div className="absolute inset-0 bg-matte/55" />
+            <div className="absolute inset-0 bg-gradient-to-t from-matte via-matte/50 to-matte/60" />
+            <div className="absolute inset-0 bg-gradient-to-b from-matte/70 via-transparent to-transparent h-40" />
+          </>
+        ) : (
+          <>
+            <div className="absolute inset-0 bg-matte/35" />
+            <div className="absolute inset-0 bg-gradient-to-t from-matte/80 via-transparent to-matte/25" />
+            {/* top scrim so the navbar reads over the photo */}
+            <div className="absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-matte/80 to-transparent" />
+            {/* centered glow behind the headline */}
+            <div
+              className="absolute inset-0"
+              style={{ background: 'radial-gradient(58% 44% at 50% 46%, var(--color-matte) 0%, rgba(0,0,0,0) 72%)', opacity: 0.62 }}
+            />
+          </>
+        )}
       </div>
 
       <div ref={contentRef} className="relative z-10 max-w-3xl px-6 text-center">

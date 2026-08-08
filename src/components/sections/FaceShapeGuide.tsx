@@ -72,7 +72,7 @@ export function FaceShapeGuide() {
 
       <div className="relative z-10 h-full max-w-7xl mx-auto px-6 grid lg:grid-cols-[0.55fr_1fr] gap-6 lg:gap-10 items-center">
        {/* Left — magazine-index style vertical selector */}
-        <div className="pt-20 lg:pt-0">
+        <div className="pt-[calc(var(--navbar-height,64px)+1rem)] lg:pt-0">
           <Eyebrow>Find Your Match</Eyebrow>
           <h2 className="font-display font-bold text-3xl sm:text-4xl text-ivory leading-tight mt-3 mb-5">
             What's your<br />face shape?

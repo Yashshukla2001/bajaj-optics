@@ -22,6 +22,79 @@
 
 * { -webkit-tap-highlight-color: transparent; }
 
+/* ---- Light theme (gold + deep navy, matched to the logo) ---------------- *
+ * The palette flips via CSS variables. Accent (mist-bright) is the logo gold;
+ * primary text and secondary accent are the logo navy. Buttons use a gold
+ * background, so their text is forced to navy for contrast (rule below).
+ * Flipping --color-white turns every white/x hairline into a soft navy line.  */
+html[data-theme='light'] {
+  --color-ivory: #10233F;        /* primary text -> logo navy */
+  --color-ivory-dim: #2C3E57;
+  --color-charcoal: #FFFFFF;     /* cards / dropdowns -> white */
+  --color-charcoal-soft: #F0E9D8;
+  --color-matte: #F7F2E7;        /* page bg -> warm cream (and text-on-navy) */
+  --color-silver: #566072;
+  --color-silver-dim: #79828F;
+  --color-mist: #143A5E;         /* secondary accent -> deep navy-blue */
+  --color-mist-bright: #A6812A;  /* primary accent -> logo gold */
+  --color-white: #10233F;        /* hairlines -> subtle navy lines */
+}
+/* Gold buttons need dark text — force navy on any gold-background element. */
+html[data-theme='light'] .bg-mist-bright { color: #10233F; }
+html[data-theme='light'] .glass {
+  background: rgba(16, 35, 63, 0.045);
+  border: 1px solid rgba(16, 35, 63, 0.12);
+}
+html[data-theme='light'] .glass-light {
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(16, 35, 63, 0.12);
+}
+html[data-theme='light'] .text-gradient-mist {
+  background: linear-gradient(120deg, #10233F 8%, #A6812A 55%, #143A5E 92%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+html[data-theme='light'] ::-webkit-scrollbar-thumb { background: rgba(16, 35, 63, 0.22); }
+html[data-theme='light'] ::selection { background: var(--color-mist); color: #F7F2E7; }
+
+/* Explicit dark tokens so a subtree can opt back into dark (e.g. the hero stays
+   cinematic-dark even while the rest of the site is in light mode). */
+[data-theme='dark'] {
+  --color-ivory: #F6F3EE;
+  --color-ivory-dim: #EDE9E1;
+  --color-charcoal: #15171B;
+  --color-charcoal-soft: #1E2126;
+  --color-matte: #0A0B0D;
+  --color-silver: #C3C9CF;
+  --color-silver-dim: #8B9198;
+  --color-mist: #6F90A6;
+  --color-mist-bright: #8FB0C4;
+  --color-white: #ffffff;
+}
+/* Restore dark glass inside a dark subtree that lives within the light theme. */
+html[data-theme='light'] [data-theme='dark'] .glass {
+  background: rgba(246, 243, 238, 0.06);
+  border: 1px solid rgba(246, 243, 238, 0.12);
+}
+html[data-theme='light'] [data-theme='dark'] .glass-light {
+  background: rgba(21, 23, 27, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+/* Keep the gold button text override from leaking into dark subtrees. */
+html[data-theme='light'] [data-theme='dark'] .bg-mist-bright { color: var(--color-matte); }
+
+/* Muted labels fade toward the background at low opacity — on cream they can
+   vanish, so lift the faintest steps in light mode. Uses the ivory var, so it
+   stays light inside dark subtrees automatically. */
+html[data-theme='light'] .text-ivory\/25 { color: color-mix(in oklab, var(--color-ivory) 52%, transparent); }
+html[data-theme='light'] .text-ivory\/30 { color: color-mix(in oklab, var(--color-ivory) 55%, transparent); }
+html[data-theme='light'] .text-ivory\/35 { color: color-mix(in oklab, var(--color-ivory) 58%, transparent); }
+html[data-theme='light'] .text-ivory\/40 { color: color-mix(in oklab, var(--color-ivory) 62%, transparent); }
+html[data-theme='light'] .text-ivory\/45 { color: color-mix(in oklab, var(--color-ivory) 66%, transparent); }
+html[data-theme='light'] .text-ivory\/50 { color: color-mix(in oklab, var(--color-ivory) 70%, transparent); }
+html[data-theme='light'] .text-ivory\/55 { color: color-mix(in oklab, var(--color-ivory) 74%, transparent); }
+
 html { background: var(--color-matte); }
 
 body {

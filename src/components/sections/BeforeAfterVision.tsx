@@ -102,9 +102,8 @@ export function BeforeAfterVision() {
                 <motion.polygon
                   key={i}
                   points="100,100 100,-30 165,-10"
-                  fill="#0A0B0D"
                   opacity={0.94}
-                  style={{ originX: '100px', originY: '100px' }}
+                  style={{ fill: 'var(--color-matte)', originX: '100px', originY: '100px' }}
                   animate={{ rotate: openAngle }}
                   transition={{ type: 'tween', duration: 0.05 }}
                 />

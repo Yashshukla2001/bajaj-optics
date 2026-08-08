@@ -99,9 +99,9 @@ export function ReviewModal() {
                 initial={{ scale: 0, rotate: -30 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ delay: 0.15, type: 'spring', stiffness: 200, damping: 14 }}
-                className="mx-auto w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.35)]"
+                className="mx-auto w-16 h-16 rounded-full bg-[#ffffff] flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.35)]"
               >
-                <FaGoogle className="text-charcoal" size={26} />
+                <FaGoogle className="text-[#1a1a1a]" size={26} />
               </motion.div>
 
               {/* Stars */}
@@ -138,8 +138,8 @@ export function ReviewModal() {
                   onClick={() => close(true)}
                   className="group inline-flex items-center justify-center gap-3 rounded-full bg-mist-bright text-matte px-7 py-3.5 text-sm font-medium tracking-wide transition-transform hover:scale-[1.02] active:scale-95"
                 >
-                  <span className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
-                    <FaGoogle className="text-charcoal" size={12} />
+                  <span className="w-6 h-6 rounded-full bg-[#ffffff] flex items-center justify-center">
+                    <FaGoogle className="text-[#1a1a1a]" size={12} />
                   </span>
                   Leave a Google Review
                 </a>

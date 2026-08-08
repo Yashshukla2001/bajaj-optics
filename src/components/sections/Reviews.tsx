@@ -48,8 +48,8 @@ export function Reviews() {
 
         {/* Prominent Google rating badge */}
         <div className="flex items-center gap-4 glass rounded-2xl px-6 py-4">
-          <div className="w-11 h-11 rounded-full bg-white flex items-center justify-center shrink-0">
-            <FaGoogle className="text-charcoal" size={18} />
+          <div className="w-11 h-11 rounded-full bg-[#ffffff] flex items-center justify-center shrink-0">
+            <FaGoogle className="text-[#1a1a1a]" size={18} />
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -118,8 +118,8 @@ export function Reviews() {
             rel="noopener noreferrer"
             className="relative group shrink-0 inline-flex items-center gap-3 rounded-full bg-mist-bright text-matte px-7 py-4 text-sm font-medium tracking-wide transition-transform hover:scale-[1.03] active:scale-95"
           >
-            <span className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
-              <FaGoogle className="text-charcoal" size={12} />
+            <span className="w-6 h-6 rounded-full bg-[#ffffff] flex items-center justify-center">
+              <FaGoogle className="text-[#1a1a1a]" size={12} />
             </span>
             Leave a Google Review
             <HiArrowUpRight size={15} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />

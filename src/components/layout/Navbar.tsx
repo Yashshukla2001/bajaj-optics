@@ -8,6 +8,8 @@ import type { CategoryId } from '@/types/product';
 import { buildWhatsAppLink } from '@/utils/whatsapp';
 import { megaGroupsFor, tagLabel } from '@/utils/catalog';
 import { useWishlist } from '@/hooks/useWishlist';
+import { useTheme } from '@/hooks/useTheme';
+import { FaSun, FaMoon } from 'react-icons/fa';
 import { ProductImage } from '@/components/collection/ProductImage';
 import logoIcon from '@/assets/images/logo-color-icon-pill (1).png';
 
@@ -167,8 +169,12 @@ export function Navbar() {
   const location = useLocation();
   const onHome = location.pathname === '/';
   const { count } = useWishlist();
+  const { theme, toggle: toggleTheme } = useTheme();
 
   const showBg = !onHome || scrolled;
+  const barSolid = theme === 'light' ? 'rgba(247,242,231,0.92)' : 'rgba(10,11,13,0.9)';
+  const barClear = theme === 'light' ? 'rgba(247,242,231,0)' : 'rgba(10,11,13,0)';
+  const barBorder = theme === 'light' ? 'rgba(16,35,63,0.12)' : 'rgba(246,243,238,0.08)';
   // Over the homepage hero we keep the bar minimal and transparent — no search
   // bar or category row — so it doesn't clutter the cinematic opening.
   const atHeroTop = onHome && !scrolled;
@@ -182,12 +188,23 @@ export function Navbar() {
 
   useEffect(() => { setActiveCat(null); setOpen(false); }, [location.pathname, location.search]);
 
+  // Keep --navbar-height in sync with the REAL bar height at all times — the
+  // category row animates in after mount, so a one-off measurement is too short
+  // and page content would tuck under it. A ResizeObserver fixes every offset.
   useEffect(() => {
-    const setHeight = () => document.documentElement.style.setProperty('--navbar-height', `${headerRef.current?.offsetHeight ?? 64}px`);
+    const el = headerRef.current;
+    if (!el) return;
+    const setHeight = () =>
+      document.documentElement.style.setProperty('--navbar-height', `${el.offsetHeight}px`);
     setHeight();
+    const ro = new ResizeObserver(setHeight);
+    ro.observe(el);
     window.addEventListener('resize', setHeight);
-    return () => window.removeEventListener('resize', setHeight);
-  }, [showBg, atHeroTop, location.pathname]);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', setHeight);
+    };
+  }, []);
 
   // Open a category menu and place its panel so it always stays on-screen —
   // measured from the hovered item, clamped to the viewport on both edges.
@@ -212,14 +229,15 @@ export function Navbar() {
   return (
     <>
       <motion.header ref={headerRef} initial={{ y: -40, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.7, ease: EASE }} className="fixed top-0 inset-x-0 z-50">
+        transition={{ duration: 0.7, ease: EASE }} className="fixed top-0 inset-x-0 z-50"
+        data-theme={atHeroTop && theme === 'dark' ? 'dark' : undefined}>
         <motion.div
-          animate={{ backgroundColor: showBg ? 'rgba(10,11,13,0.9)' : 'rgba(10,11,13,0)' }}
+          animate={{ backgroundColor: showBg ? barSolid : barClear }}
           transition={{ duration: 0.35 }}
           style={{
             backdropFilter: showBg ? 'blur(16px) saturate(140%)' : 'none',
             WebkitBackdropFilter: showBg ? 'blur(16px) saturate(140%)' : 'none',
-            borderBottom: showBg ? '1px solid rgba(246,243,238,0.08)' : '1px solid rgba(246,243,238,0)',
+            borderBottom: showBg ? `1px solid ${barBorder}` : '1px solid transparent',
           }}
           className="w-full"
           onMouseLeave={() => setActiveCat(null)}
@@ -245,6 +263,11 @@ export function Navbar() {
                   ))}
                 </nav>
               )}
+
+              <button onClick={toggleTheme} aria-label="Toggle dark and light theme"
+                className="w-9 h-9 flex items-center justify-center text-ivory/80 hover:text-mist-bright transition-colors">
+                {theme === 'dark' ? <FaSun size={16} /> : <FaMoon size={14} />}
+              </button>
 
               <Link to="/wishlist" aria-label="Wishlist" className="relative w-9 h-9 flex items-center justify-center text-ivory/80 hover:text-mist-bright transition-colors">
                 <HiOutlineHeart size={20} />
@@ -356,6 +379,11 @@ export function Navbar() {
                 <Link to="/wishlist" onClick={() => setOpen(false)} className="py-2.5 text-base text-ivory/65 hover:text-mist-bright transition-colors">
                   Wishlist{count > 0 ? ` (${count})` : ''}
                 </Link>
+                <button onClick={toggleTheme}
+                  className="flex items-center gap-2 py-2.5 text-base text-ivory/65 hover:text-mist-bright transition-colors text-left">
+                  {theme === 'dark' ? <FaSun size={15} /> : <FaMoon size={14} />}
+                  {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+                </button>
               </div>
             </nav>
 

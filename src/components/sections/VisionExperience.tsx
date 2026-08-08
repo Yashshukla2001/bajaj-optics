@@ -69,7 +69,7 @@ export function VisionExperience() {
 return (
     <section
       ref={sectionRef}
-      className="relative h-[100svh] w-full overflow-hidden bg-matte flex flex-col pt-20 sm:pt-24 pb-10 px-6"
+      className="relative h-[100svh] w-full overflow-hidden bg-matte flex flex-col pt-[calc(var(--navbar-height,64px)+2.5rem)] pb-10 px-6"
     >
       <div className="text-center shrink-0">
         <Eyebrow>The Vision Experience</Eyebrow>
