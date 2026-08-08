@@ -54,7 +54,7 @@ function Accordion({ title, defaultOpen, children }: { title: string; defaultOpe
             transition={{ duration: 0.28, ease: EASE }}
             className="overflow-hidden"
           >
-            <div className="pt-2 max-h-56 overflow-y-auto no-scrollbar pr-1">{children}</div>
+            <div className="pt-2">{children}</div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -138,7 +138,7 @@ export function MobileFilterSheet({ open, onClose, resultCount, title = 'Filters
                 <HiXMark size={18} />
               </button>
             </div>
-            <div className="overflow-y-auto px-6 py-5 no-scrollbar">{children}</div>
+            <div className="overflow-y-auto px-6 py-5 no-scrollbar" data-lenis-prevent>{children}</div>
             <div className="p-5 border-t border-white/8 shrink-0">
               <button onClick={onClose} className="w-full rounded-full bg-mist-bright text-matte py-3.5 text-sm font-medium">
                 Show {resultCount} {resultCount === 1 ? 'result' : 'results'}

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useSearchParams, Link, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -57,8 +57,24 @@ function CollectionView({ catId }: { catId: CategoryId }) {
   const [filterOpen, setFilterOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
   const [visible, setVisible] = useState(PAGE_SIZE);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { setVisible(PAGE_SIZE); }, [filtered.length, view]);
+
+  // When the selection (facets / sort / price) changes, bring the results back
+  // to the top so you always start from the first match — not wherever you were.
+  const filterSig = JSON.stringify(filters.facets) + '|' + sort + '|' + JSON.stringify(filters.price);
+  const firstRun = useRef(true);
+  useEffect(() => {
+    if (firstRun.current) { firstRun.current = false; return; }
+    const el = resultsRef.current;
+    if (!el) return;
+    const navH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--navbar-height') || '64', 10);
+    const y = Math.max(0, el.getBoundingClientRect().top + window.scrollY - (navH + 70));
+    const lenis = (window as any).__lenis;
+    if (lenis?.scrollTo) lenis.scrollTo(y, { duration: 0.6 });
+    else window.scrollTo({ top: y, behavior: 'smooth' });
+  }, [filterSig]);
 
   const shown = filtered.slice(0, visible);
 
@@ -156,14 +172,14 @@ function CollectionView({ catId }: { catId: CategoryId }) {
         <div className="flex gap-10">
           {availableFacets.length > 0 && (
             <aside className="hidden lg:block w-60 shrink-0">
-              <div className="sticky top-[calc(var(--navbar-height,64px)+5rem)] max-h-[calc(100vh-var(--navbar-height,64px)-6rem)] overflow-y-auto no-scrollbar pr-1">
+              <div data-lenis-prevent className="sticky top-[calc(var(--navbar-height,64px)+5rem)] max-h-[calc(100vh-var(--navbar-height,64px)-6rem)] overflow-y-auto no-scrollbar pr-1">
                 <p className="eyebrow mb-4">Filters</p>
                 {controls}
               </div>
             </aside>
           )}
 
-          <div className="flex-1 min-w-0">
+          <div ref={resultsRef} className="flex-1 min-w-0">
             {/* Search */}
             <div className="relative max-w-xs mb-6">
               <HiMagnifyingGlass className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ivory/40" size={15} />
@@ -186,7 +202,7 @@ function CollectionView({ catId }: { catId: CategoryId }) {
                 </button>
               </div>
             ) : view === 'grid' ? (
-              <motion.div layout className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+              <motion.div layout className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5">
                 <AnimatePresence mode="popLayout">
                   {shown.map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
                 </AnimatePresence>

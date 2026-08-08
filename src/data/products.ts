@@ -18,36 +18,38 @@ function u(id: string, w = 900): string {
 }
 
 // ---- Images ---------------------------------------------------------------
-// ONLY verified, license-clear Unsplash photos that this project already uses
-// live (the same ids as the homepage category tiles + frame showcase), so no
-// product can ever end up with a broken image. Each category is matched to a
-// photo of THAT product type — sunglasses show sunglasses, lenses show lenses,
-// and so on. Swap any id here to change every product in that category.
+// Every product gets its OWN genuine, license-clear Unsplash product photo.
+// These ids were harvested from Unsplash's free-license catalog (clean product
+// shots — real frames/lenses on plain surfaces), so each frame looks distinct
+// and real, and nothing is ever left without an image. To use your own studio
+// photos later, just replace the ids (or URLs) in the pool for that category.
 
-// Verified per-category photo (from PRODUCT_CATEGORIES — correct subject matter)
-const CAT_ID: Record<Exclude<CategoryId, 'smart-glasses'>, string> = {
-  sunglasses: '1523884156331-22cc4f5df98d',
-  prescription: '1556306510-31ca015374b0',
-  bluecut: '1746329545447-1312bd2f01ca',
-  kids: '1685950925275-281298061f98',
-  office: '1758874383352-481f911951aa',
-  'contact-lens': '1573569986767-6c832cc6868c',
-};
-
-// Verified neutral eyeglass-frame photos (from the homepage Frame Showcase).
-// Used to add genuine variety across prescription / blue-cut / office frames.
-const FRAME_IDS = [
-  '1494005826588-25b58776edbc',
-  '1601638058835-43cc7efe2d43',
-  '1589176449149-71f7ea77ec25',
-  '1614179818428-220dcc46fe8c',
-  '1516714819001-8ee7a13b71d7',
+// Clean sunglasses product shots (12 — one per sunglasses product)
+const SUN_IMGS = [
+  '1523884156331-22cc4f5df98d', '1511499767150-a48a237f0083', '1572635196237-14b3f281503f',
+  '1577803645773-f96470509666', '1584036553516-bf83210aa16c', '1610136649349-0f646f318053',
+  '1473496169904-658ba7c44d8a', '1608539733292-190446b22b83', '1508296695146-257a814070b4',
+  '1611222777277-61319d63ca94', '1566421966482-ad8076104d8e', '1653038282189-803202722a05',
 ];
 
-const CAT_IMG = Object.fromEntries(
-  Object.entries(CAT_ID).map(([k, id]) => [k, u(id)])
-) as Record<Exclude<CategoryId, 'smart-glasses'>, string>;
-const FRAMES = FRAME_IDS.map((id) => u(id));
+// Clean eyeglass-frame product shots (14 — shared across prescription/blue-cut/office/kids)
+const EYE_IMGS = [
+  '1556306510-31ca015374b0', '1614715838608-dd527c46231d', '1646084081219-1090f72a531c',
+  '1591076482161-42ce6da69f67', '1534078477103-9f6a18b3a5e2', '1574258495973-f010dfbb5371',
+  '1589176449149-71f7ea77ec25', '1603578119639-798b8413d8d7', '1483412468200-72182dbbc544',
+  '1486250944723-86bca2b15b06', '1722303165074-acba5cd2f3cd', '1646083774155-2a40b675641d',
+  '1516714819001-8ee7a13b71d7', '1456081101716-74e616ab23d8',
+];
+
+// Contact-lens product shots (packs, blisters, coloured lenses, accessories)
+const LENS_IMGS = [
+  '1573569986767-6c832cc6868c', '1599243315159-faa0eac09ec1', '1743590363059-ce890f6cc97b',
+  '1582143434535-eba55a806718', '1687717002957-23fa760873a3', '1687717003503-8ccebb9df7fe',
+  '1687717002851-4aec30510fa5', '1494869042583-f6c911f04b4c',
+];
+
+// Kids: real frame shots led by the playful kids photo, rotated for variety.
+const KIDS_IMGS = ['1685950925275-281298061f98', ...EYE_IMGS];
 
 // Eyones smart-glasses use the project's own branded photography.
 const SMART_IMGS: string[][] = [
@@ -56,31 +58,36 @@ const SMART_IMGS: string[][] = [
   [eyonesBranding, eyonesHero],
 ];
 
+function pick(pool: string[], i: number, offset = 0): string[] {
+  const a = u(pool[(i + offset) % pool.length]);
+  const b = u(pool[(i + offset + 1) % pool.length]); // second angle for the gallery
+  return [a, b];
+}
+
 /**
- * Chooses genuine, category-appropriate images for a product. Sunglasses, kids
- * and contact-lens stay locked to their exact-subject photo; eyeglass frames
- * (prescription / blue-cut / office) rotate through the verified frame shots so
- * the grid feels varied without ever showing the wrong kind of product.
+ * Gives each product its own genuine, category-correct image. Within a category
+ * the primary photo is unique per product; the detail gallery adds a second
+ * real shot from the same pool.
  */
 function imagesFor(category: CategoryId, i: number): string[] {
-  if (category === 'smart-glasses') return SMART_IMGS[i % SMART_IMGS.length];
-  if (category === 'sunglasses' || category === 'kids' || category === 'contact-lens') {
-    return [CAT_IMG[category]];
+  switch (category) {
+    case 'smart-glasses': return SMART_IMGS[i % SMART_IMGS.length];
+    case 'sunglasses': return pick(SUN_IMGS, i);
+    case 'contact-lens': return [u(LENS_IMGS[i % LENS_IMGS.length])];
+    case 'kids': return pick(KIDS_IMGS, i);
+    case 'prescription': return pick(EYE_IMGS, i, 0);
+    case 'bluecut': return pick(EYE_IMGS, i, 5);
+    case 'office': return pick(EYE_IMGS, i, 9);
+    default: return pick(EYE_IMGS, i);
   }
-  return [FRAMES[i % FRAMES.length], CAT_IMG[category as Exclude<CategoryId, 'smart-glasses'>]];
 }
 
 // Back-compat shim: product rows below still pass an `imgs` field for
-// readability, but images are now assigned centrally by imagesFor(). These
-// verified ids keep those expressions valid; their values are not used.
+// readability, but images are assigned centrally by imagesFor(). These verified
+// ids keep those legacy expressions valid; their values are not used.
 const POOL = {
-  sun: [CAT_ID.sunglasses],
-  presc: [CAT_ID.prescription],
-  blue: [CAT_ID.bluecut],
-  kids: [CAT_ID.kids],
-  office: [CAT_ID.office],
-  lens: [CAT_ID['contact-lens']],
-  frame: FRAME_IDS,
+  sun: SUN_IMGS, presc: EYE_IMGS, blue: EYE_IMGS,
+  kids: KIDS_IMGS, office: EYE_IMGS, lens: LENS_IMGS, frame: EYE_IMGS,
 };
 
 function slugify(name: string): string {

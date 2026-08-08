@@ -44,7 +44,7 @@ export function WishlistPage() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 mt-10">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5 mt-10">
             {saved.map((p, i) => (
               <ProductCard key={p.id} product={p} index={i} />
             ))}

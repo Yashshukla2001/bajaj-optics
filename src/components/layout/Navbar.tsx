@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HiXMark, HiBars3, HiChevronDown, HiMagnifyingGlass, HiOutlineHeart, HiChevronRight } from 'react-icons/hi2';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { NAV_LINKS, whatsappMessage } from '@/constants/business';
+import { NAV_LINKS, whatsappMessage, BUSINESS } from '@/constants/business';
 import { COLLECTION_CATEGORIES, PRODUCTS, getCategoryMeta } from '@/data/products';
 import type { CategoryId } from '@/types/product';
 import { buildWhatsAppLink } from '@/utils/whatsapp';
@@ -19,11 +19,29 @@ const SHOP_CATS = CAT_ORDER
   .map((id) => COLLECTION_CATEGORIES.find((c) => c.id === id))
   .filter((c): c is NonNullable<typeof c> => !!c);
 
+// Short labels keep the category bar compact and responsive across widths.
+const NAV_LABEL: Record<string, string> = {
+  sunglasses: 'Sunglasses',
+  prescription: 'Eyeglasses',
+  bluecut: 'Blue-Cut',
+  office: 'Office',
+  kids: 'Kids',
+  'contact-lens': 'Contacts',
+  'smart-glasses': 'Smart Glasses',
+};
+
 // Page/section quick links (the shop lives in the category bar below).
 const PAGE_LINKS = NAV_LINKS.filter((l) => !['collection', 'frames'].includes(l.href.replace('#', '')));
 
 function LensLogo() {
-  return <img src={logoIcon} alt="Bajaj Optics" className="h-9 sm:h-10 w-auto shrink-0" />;
+  return (
+    <span className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+      <img src={logoIcon} alt="" aria-hidden className="h-8 sm:h-10 w-auto shrink-0" />
+      <span className="font-display font-bold text-ivory leading-none tracking-tight text-base sm:text-xl whitespace-nowrap">
+        {BUSINESS.name}
+      </span>
+    </span>
+  );
 }
 
 // ---- Search with live product suggestions ---------------------------------
@@ -106,8 +124,8 @@ function CategoryMega({ catId }: { catId: CategoryId }) {
   const meta = getCategoryMeta(catId)!;
   const groups = megaGroupsFor(catId);
   return (
-    <div className="glass-light rounded-2xl p-5 w-[32rem] shadow-[0_24px_60px_rgba(0,0,0,0.5)]">
-      <div className="flex gap-6">
+    <div className="glass-light rounded-2xl p-5 w-[min(32rem,calc(100vw-2rem))] shadow-[0_24px_60px_rgba(0,0,0,0.5)]">
+      <div className="flex flex-wrap gap-x-6 gap-y-4">
         {groups.map((g) => (
           <div key={g.label} className="min-w-[8rem]">
             <p className="eyebrow !text-[0.58rem] mb-2.5">{g.label}</p>
@@ -150,6 +168,9 @@ export function Navbar() {
   const { count } = useWishlist();
 
   const showBg = !onHome || scrolled;
+  // Over the homepage hero we keep the bar minimal and transparent — no search
+  // bar or category row — so it doesn't clutter the cinematic opening.
+  const atHeroTop = onHome && !scrolled;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -165,7 +186,7 @@ export function Navbar() {
     setHeight();
     window.addEventListener('resize', setHeight);
     return () => window.removeEventListener('resize', setHeight);
-  }, [showBg]);
+  }, [showBg, atHeroTop, location.pathname]);
 
   function handlePageLink(e: React.MouseEvent, id: string) {
     e.preventDefault();
@@ -190,16 +211,27 @@ export function Navbar() {
           onMouseLeave={() => setActiveCat(null)}
         >
           {/* Row 1 — logo · search · actions */}
-          <div className="max-w-7xl mx-auto flex items-center gap-4 px-5 sm:px-8 py-3">
-            <a href="#top" onClick={(e) => handlePageLink(e, 'top')} className="flex items-center shrink-0">
+          <div className="max-w-7xl mx-auto flex items-center gap-2 sm:gap-4 px-4 sm:px-8 py-3">
+            <a href="#top" onClick={(e) => handlePageLink(e, 'top')} aria-label={`${BUSINESS.name} — home`} className="flex items-center shrink-0">
               <LensLogo />
             </a>
 
-            <div className="hidden md:block flex-1 max-w-md mx-auto">
-              <SearchBox />
+            <div className={`hidden md:block flex-1 max-w-md mx-auto transition-opacity ${atHeroTop ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+              {!atHeroTop && <SearchBox />}
             </div>
 
             <div className="ml-auto flex items-center gap-2 sm:gap-3 shrink-0">
+              {!atHeroTop && (
+                <nav className="hidden lg:flex items-center gap-5 mr-1">
+                  {PAGE_LINKS.map((l) => (
+                    <a key={l.href} href={l.href} onClick={(e) => handlePageLink(e, l.href.replace('#', ''))}
+                      className="py-1 text-[0.72rem] tracking-wide whitespace-nowrap text-ivory/55 hover:text-ivory transition-colors">
+                      {l.label}
+                    </a>
+                  ))}
+                </nav>
+              )}
+
               <Link to="/wishlist" aria-label="Wishlist" className="relative w-9 h-9 flex items-center justify-center text-ivory/80 hover:text-mist-bright transition-colors">
                 <HiOutlineHeart size={20} />
                 {count > 0 && (
@@ -214,9 +246,11 @@ export function Navbar() {
                 Book Eye Test
               </a>
 
-              <button onClick={() => setMobileSearch((s) => !s)} aria-label="Search" className="md:hidden w-9 h-9 flex items-center justify-center text-ivory">
-                <HiMagnifyingGlass size={19} />
-              </button>
+              {!atHeroTop && (
+                <button onClick={() => setMobileSearch((s) => !s)} aria-label="Search" className="md:hidden w-9 h-9 flex items-center justify-center text-ivory">
+                  <HiMagnifyingGlass size={19} />
+                </button>
+              )}
               <button onClick={() => setOpen(true)} aria-label="Open menu" className="md:hidden w-9 h-9 flex items-center justify-center text-ivory">
                 <HiBars3 size={20} />
               </button>
@@ -233,15 +267,25 @@ export function Navbar() {
             )}
           </AnimatePresence>
 
-          {/* Row 2 — category mega-menu bar (desktop) */}
-          <div className="hidden md:block border-t border-white/5">
-            <div className="max-w-7xl mx-auto px-5 sm:px-8 flex items-center justify-between">
-              <nav className="flex items-center gap-6">
-                {SHOP_CATS.map((c) => (
-                  <div key={c.id} className="relative" onMouseEnter={() => setActiveCat(c.id)}>
+          {/* Row 2 — category mega-menu bar (desktop). Hidden over the hero. */}
+          <AnimatePresence initial={false}>
+            {!atHeroTop && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3, ease: EASE }}
+                className="hidden md:block border-t border-white/5 overflow-visible"
+              >
+                <div className="max-w-7xl mx-auto px-4 sm:px-8 flex items-center justify-between gap-4">
+              <nav className="flex items-center gap-3 lg:gap-6 min-w-0">
+                {SHOP_CATS.map((c, ci) => {
+                  const alignRight = ci >= SHOP_CATS.length - 2;
+                  return (
+                  <div key={c.id} className="relative shrink-0" onMouseEnter={() => setActiveCat(c.id)}>
                     <Link to={`/collections/${c.id}`}
-                      className={`flex items-center gap-1 py-3 text-[0.74rem] tracking-wide transition-colors ${activeCat === c.id ? 'text-mist-bright' : 'text-ivory/70 hover:text-ivory'}`}>
-                      {c.title}
+                      className={`flex items-center gap-1 py-3 text-[0.7rem] lg:text-[0.74rem] tracking-wide whitespace-nowrap transition-colors ${activeCat === c.id ? 'text-mist-bright' : 'text-ivory/70 hover:text-ivory'}`}>
+                      {NAV_LABEL[c.id] ?? c.title}
                       {megaGroupsFor(c.id).length > 0 && (
                         <HiChevronDown size={11} className={`opacity-60 transition-transform ${activeCat === c.id ? 'rotate-180' : ''}`} />
                       )}
@@ -249,25 +293,19 @@ export function Navbar() {
                     <AnimatePresence>
                       {activeCat === c.id && (
                         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }}
-                          transition={{ duration: 0.22, ease: EASE }} className="absolute top-full left-0 pt-2 z-[60]">
+                          transition={{ duration: 0.22, ease: EASE }} className={`absolute top-full pt-2 z-[60] ${alignRight ? 'right-0' : 'left-0'}`}>
                           <CategoryMega catId={c.id} />
                         </motion.div>
                       )}
                     </AnimatePresence>
                   </div>
-                ))}
-              </nav>
-
-              <nav className="flex items-center gap-5">
-                {PAGE_LINKS.map((l) => (
-                  <a key={l.href} href={l.href} onClick={(e) => handlePageLink(e, l.href.replace('#', ''))}
-                    className="py-3 text-[0.72rem] tracking-wide text-ivory/50 hover:text-ivory/85 transition-colors">
-                    {l.label}
-                  </a>
-                ))}
+                  );
+                })}
               </nav>
             </div>
-          </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       </motion.header>
 
