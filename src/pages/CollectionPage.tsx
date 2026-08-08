@@ -49,8 +49,8 @@ function CollectionView({ catId }: { catId: CategoryId }) {
   const products = useMemo(() => getProductsByCategory(catId), [catId]);
 
   const {
-    filters, sort, setSort, availableFacets, priceBounds, filtered,
-    toggleFacet, removeFacet, setPrice, setQuery, reset, activeCount,
+    filters, sort, setSort, availableFacets, filtered,
+    toggleFacet, removeFacet, setQuery, reset, activeCount,
   } = useCollectionFilters(products, initial);
 
   const [view, setView] = useState<'grid' | 'list'>(initialView);
@@ -61,9 +61,9 @@ function CollectionView({ catId }: { catId: CategoryId }) {
 
   useEffect(() => { setVisible(PAGE_SIZE); }, [filtered.length, view]);
 
-  // When the selection (facets / sort / price) changes, bring the results back
-  // to the top so you always start from the first match — not wherever you were.
-  const filterSig = JSON.stringify(filters.facets) + '|' + sort + '|' + JSON.stringify(filters.price);
+  // When the selection (facets / sort) changes, bring the results back to the
+  // top so you always start from the first match — not wherever you were.
+  const filterSig = JSON.stringify(filters.facets) + '|' + sort;
   const firstRun = useRef(true);
   useEffect(() => {
     if (firstRun.current) { firstRun.current = false; return; }
@@ -86,8 +86,8 @@ function CollectionView({ catId }: { catId: CategoryId }) {
 
   const controls = (
     <FilterControls
-      facets={availableFacets} filters={filters} priceBounds={priceBounds} activeCount={activeCount}
-      onToggle={toggleFacet} onPrice={setPrice} onReset={reset}
+      facets={availableFacets} filters={filters} activeCount={activeCount}
+      onToggle={toggleFacet} onReset={reset}
     />
   );
 

@@ -10,10 +10,8 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 interface FilterControlsProps {
   facets: AvailableFacet[];
   filters: FilterState;
-  priceBounds: [number, number] | null;
   activeCount: number;
   onToggle: (key: FacetKey, value: string) => void;
-  onPrice: (price: [number, number] | null) => void;
   onReset: () => void;
 }
 
@@ -63,11 +61,8 @@ function Accordion({ title, defaultOpen, children }: { title: string; defaultOpe
 }
 
 export function FilterControls({
-  facets, filters, priceBounds, activeCount, onToggle, onPrice, onReset,
+  facets, filters, activeCount, onToggle, onReset,
 }: FilterControlsProps) {
-  const [floor, ceil] = priceBounds ?? [0, 0];
-  const [lo, hi] = filters.price ?? [floor, ceil];
-
   return (
     <div className="flex flex-col gap-4">
       {facets.map((facet, i) => (
@@ -87,21 +82,6 @@ export function FilterControls({
           })}
         </Accordion>
       ))}
-
-      {priceBounds && ceil > floor && (
-        <Accordion title="Price" defaultOpen>
-          <div className="flex items-center justify-between mb-3 pt-1">
-            <span className="text-xs text-ivory/60 font-mono">₹{lo.toLocaleString('en-IN')}</span>
-            <span className="text-xs text-ivory/60 font-mono">₹{hi.toLocaleString('en-IN')}</span>
-          </div>
-          <div className="flex flex-col gap-2.5 px-0.5 pb-1">
-            <input type="range" min={floor} max={ceil} value={lo} step={100} aria-label="Minimum price"
-              onChange={(e) => onPrice([Math.min(Number(e.target.value), hi), hi])} className="w-full accent-mist-bright" />
-            <input type="range" min={floor} max={ceil} value={hi} step={100} aria-label="Maximum price"
-              onChange={(e) => onPrice([lo, Math.max(Number(e.target.value), lo)])} className="w-full accent-mist-bright" />
-          </div>
-        </Accordion>
-      )}
 
       {activeCount > 0 && (
         <button onClick={onReset} className="self-start text-xs text-ivory/55 hover:text-mist-bright transition-colors underline underline-offset-4">

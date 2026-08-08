@@ -50,7 +50,6 @@ export function ProductDetailPage() {
 
   if (!valid || !product || !meta) return <Navigate to="/" replace />;
 
-  const priceLabel = typeof product.price === 'number' ? `₹${product.price.toLocaleString('en-IN')}` : 'Price on enquiry';
   const waUrl = generateProductWhatsAppUrl(product);
 
   return (
@@ -124,7 +123,7 @@ export function ProductDetailPage() {
             </motion.h1>
 
             <div className="flex items-center gap-3 mt-4">
-              <span className="text-xl text-ivory/90">{priceLabel}</span>
+              <span className="text-base text-ivory/70">Price on enquiry</span>
               {product.availability && (
                 <span className="glass rounded-full px-3 py-1 text-[0.65rem] tracking-wide text-mist-bright">
                   {AVAILABILITY_LABEL[product.availability]}
@@ -195,7 +194,7 @@ export function ProductDetailPage() {
         <div className="flex items-center gap-3">
           <div className="min-w-0">
             <p className="text-sm text-ivory truncate">{product.name}</p>
-            <p className="text-xs text-ivory/50">{priceLabel}</p>
+            <p className="text-xs text-ivory/50">Price &amp; details on WhatsApp</p>
           </div>
           <a
             href={waUrl}

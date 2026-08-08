@@ -12,10 +12,6 @@ import { ProductImage } from './ProductImage';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
-export function formatINR(n: number): string {
-  return `₹${n.toLocaleString('en-IN')}`;
-}
-
 function primaryBadge(p: Product): string | null {
   if (p.tags?.includes('new')) return 'New';
   if (p.tags?.includes('bestseller')) return 'Bestseller';
@@ -162,10 +158,10 @@ export function ProductCard({ product, index }: { product: Product; index: numbe
           </div>
 
           <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/8">
-            <span className="text-sm text-ivory/90">
-              {typeof product.price === 'number' ? formatINR(product.price) : 'On enquiry'}
+            <span className="text-[0.66rem] text-ivory/45 font-mono tracking-wide truncate">
+              {product.id}
             </span>
-            <span className="inline-flex items-center gap-1 text-[0.66rem] text-ivory/45 group-hover:text-mist-bright transition-colors">
+            <span className="inline-flex items-center gap-1 text-[0.66rem] text-ivory/45 group-hover:text-mist-bright transition-colors shrink-0">
               View <HiArrowUpRight size={11} />
             </span>
           </div>
@@ -210,8 +206,8 @@ export function ProductListItem({ product, index }: { product: Product; index: n
         <p className="text-[0.72rem] text-ivory/50 font-mono tracking-wide truncate">
           {[product.frameShape, product.frameMaterial, product.gender].filter(Boolean).join(' · ')}
         </p>
-        <p className="text-sm text-ivory/85 mt-2">
-          {typeof product.price === 'number' ? formatINR(product.price) : 'On enquiry'}
+        <p className="text-[0.7rem] text-ivory/40 font-mono tracking-wide mt-2">
+          {product.id}
         </p>
       </div>
 

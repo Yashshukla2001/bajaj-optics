@@ -37,14 +37,13 @@ function optionsFor(products: Product[], def: FacetDef): FacetOption[] {
 export function useCollectionFilters(products: Product[], initial?: InitialFilters) {
   const [filters, setFilters] = useState<FilterState>(() => ({
     facets: initial?.facets ?? {},
-    price: null,
     query: initial?.query ?? '',
   }));
   const [sort, setSort] = useState<SortId>(initial?.sort ?? 'featured');
 
   // Re-seed if the incoming initial changes (e.g., navigating with new params).
   useEffect(() => {
-    setFilters({ facets: initial?.facets ?? {}, price: null, query: initial?.query ?? '' });
+    setFilters({ facets: initial?.facets ?? {}, query: initial?.query ?? '' });
     setSort(initial?.sort ?? 'featured');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -53,12 +52,6 @@ export function useCollectionFilters(products: Product[], initial?: InitialFilte
     return FACET_DEFS.map((def) => ({ ...def, options: optionsFor(products, def) })).filter(
       (f) => f.options.length >= 2
     );
-  }, [products]);
-
-  const priceBounds = useMemo<[number, number] | null>(() => {
-    const priced = products.map((p) => p.price).filter((n): n is number => typeof n === 'number');
-    if (!priced.length) return null;
-    return [Math.min(...priced), Math.max(...priced)];
   }, [products]);
 
   const filtered = useMemo(() => {
@@ -73,9 +66,6 @@ export function useCollectionFilters(products: Product[], initial?: InitialFilte
           : selected.includes(String(raw));
         if (!has) return false;
       }
-      if (filters.price && typeof p.price === 'number') {
-        if (p.price < filters.price[0] || p.price > filters.price[1]) return false;
-      }
       if (q) {
         const hay = [p.name, p.frameShape, p.frameMaterial, p.color, ...(p.tags ?? [])]
           .filter(Boolean)
@@ -86,12 +76,8 @@ export function useCollectionFilters(products: Product[], initial?: InitialFilte
       return true;
     });
 
-    const byPrice = (a: Product, b: Product) =>
-      (a.price ?? Number.MAX_SAFE_INTEGER) - (b.price ?? Number.MAX_SAFE_INTEGER);
     const sorted = [...result];
     switch (sort) {
-      case 'price-asc': sorted.sort(byPrice); break;
-      case 'price-desc': sorted.sort((a, b) => byPrice(b, a)); break;
       case 'newest': sorted.sort((a, b) => Number(b.tags?.includes('new')) - Number(a.tags?.includes('new'))); break;
       case 'popular': sorted.sort((a, b) => Number(b.tags?.includes('bestseller')) - Number(a.tags?.includes('bestseller'))); break;
       default: sorted.sort((a, b) => Number(b.featured) - Number(a.featured)); break;
@@ -120,23 +106,19 @@ export function useCollectionFilters(products: Product[], initial?: InitialFilte
     });
   }, []);
 
-  const setPrice = useCallback((price: [number, number] | null) => {
-    setFilters((prev) => ({ ...prev, price }));
-  }, []);
   const setQuery = useCallback((query: string) => {
     setFilters((prev) => ({ ...prev, query }));
   }, []);
-  const reset = useCallback(() => setFilters({ facets: {}, price: null, query: '' }), []);
+  const reset = useCallback(() => setFilters({ facets: {}, query: '' }), []);
 
   const activeCount = useMemo(() => {
     let n = Object.values(filters.facets).reduce((acc, v) => acc + (v?.length ?? 0), 0);
-    if (filters.price) n += 1;
     if (filters.query.trim()) n += 1;
     return n;
   }, [filters]);
 
   return {
-    filters, sort, setSort, availableFacets, priceBounds, filtered,
-    toggleFacet, removeFacet, setPrice, setQuery, reset, activeCount,
+    filters, sort, setSort, availableFacets, filtered,
+    toggleFacet, removeFacet, setQuery, reset, activeCount,
   };
 }

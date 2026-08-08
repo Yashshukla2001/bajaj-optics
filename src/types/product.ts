@@ -25,7 +25,11 @@ export interface Product {
   description: string;
   /** First image is the primary; the rest are additional views. */
   images: string[];
-  /** In INR. Undefined = "price on enquiry". */
+  /**
+   * Internal-only price in INR. NOT rendered anywhere public — pricing is shared
+   * with customers through the WhatsApp enquiry flow. Kept on the model so it can
+   * still power future admin/internal features without touching product data.
+   */
   price?: number;
   frameShape?: string;
   frameMaterial?: string;
@@ -43,8 +47,6 @@ export interface Product {
 export type SortId =
   | 'featured'
   | 'newest'
-  | 'price-asc'
-  | 'price-desc'
   | 'popular';
 
 export interface SortOption {
@@ -55,8 +57,6 @@ export interface SortOption {
 export const SORT_OPTIONS: SortOption[] = [
   { id: 'featured', label: 'Featured' },
   { id: 'newest', label: 'Newest' },
-  { id: 'price-asc', label: 'Price: Low to High' },
-  { id: 'price-desc', label: 'Price: High to Low' },
   { id: 'popular', label: 'Most Popular' },
 ];
 
@@ -89,10 +89,9 @@ export const FACET_DEFS: FacetDef[] = [
   { key: 'availability', label: 'Availability' },
 ];
 
-/** Selected facet values, keyed by facet. Plus a price range + text query. */
+/** Selected facet values, keyed by facet, plus a free-text query. */
 export interface FilterState {
   facets: Partial<Record<FacetKey, string[]>>;
-  price: [number, number] | null;
   query: string;
 }
 
