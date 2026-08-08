@@ -1,15 +1,21 @@
 import { useRef, useState, type MouseEvent } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { PRODUCT_CATEGORIES } from '@/constants/business';
+import { isCollectionCategory } from '@/data/products';
 import { openWhatsApp } from '@/utils/whatsapp';
 import { Eyebrow, SplitReveal } from '@/components/ui/SplitReveal';
 import { HiArrowUpRight } from 'react-icons/hi2';
 
-function ProductCard({ cat, index }: { cat: (typeof PRODUCT_CATEGORIES)[number]; index: number }) {
+/** A homepage category tile — opens that category's collection experience. */
+function CategoryCard({ cat, index }: { cat: (typeof PRODUCT_CATEGORIES)[number]; index: number }) {
   const cardRef = useRef<HTMLButtonElement>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [imgOffset, setImgOffset] = useState({ x: 0, y: 0 });
   const [hovered, setHovered] = useState(false);
+  const navigate = useNavigate();
+
+  const hasCollection = isCollectionCategory(cat.id);
 
   function handleMove(e: MouseEvent<HTMLButtonElement>) {
     const rect = cardRef.current?.getBoundingClientRect();
@@ -25,10 +31,15 @@ function ProductCard({ cat, index }: { cat: (typeof PRODUCT_CATEGORIES)[number];
     setHovered(false);
   }
 
+  function handleClick() {
+    if (hasCollection) navigate(`/collections/${cat.id}`);
+    else openWhatsApp(`Hi Bajaj Optics, I'm interested in your ${cat.title} collection.`);
+  }
+
   return (
     <motion.button
       ref={cardRef}
-      onClick={() => openWhatsApp(`Hi Bajaj Optics, I'm interested in your ${cat.title} collection.`)}
+      onClick={handleClick}
       onMouseMove={handleMove}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={handleLeave}
@@ -75,6 +86,10 @@ function ProductCard({ cat, index }: { cat: (typeof PRODUCT_CATEGORIES)[number];
       <div style={{ transform: 'translateZ(30px)' }}>
         <h3 className="font-display font-bold text-2xl text-ivory relative">{cat.title}</h3>
         <p className="text-sm text-ivory/55 mt-1.5 relative">{cat.desc}</p>
+        <span className="inline-flex items-center gap-1.5 mt-3 text-[0.7rem] font-mono tracking-wide text-mist-bright/80 group-hover:text-mist-bright transition-colors">
+          {hasCollection ? 'Explore collection' : 'Enquire on WhatsApp'}
+          <HiArrowUpRight size={12} />
+        </span>
       </div>
     </motion.button>
   );
@@ -94,13 +109,13 @@ export function Products() {
             />
           </div>
           <p className="text-sm text-ivory/45 max-w-xs font-light">
-            Tap any category to chat with us on WhatsApp about availability, pricing and fit.
+            Tap any category to browse the full collection — filter, explore and enquire on WhatsApp.
           </p>
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {PRODUCT_CATEGORIES.map((cat, i) => (
-            <ProductCard key={cat.id} cat={cat} index={i} />
+            <CategoryCard key={cat.id} cat={cat} index={i} />
           ))}
         </div>
       </div>

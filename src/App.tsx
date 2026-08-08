@@ -1,84 +1,46 @@
-import { useState,useEffect } from 'react';
+import { useState, lazy, Suspense } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { Loader } from '@/components/layout/Loader';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { FloatingDock } from '@/components/layout/FloatingDock';
-import { Hero } from '@/components/sections/Hero';
-import { VisionExperience } from '@/components/sections/VisionExperience';
-import { About } from '@/components/sections/About';
-import { WhyUs } from '@/components/sections/WhyUs';
-import { FaceShapeGuide } from '@/components/sections/FaceShapeGuide';
-import { Products } from '@/components/sections/Products';
-import { FrameShowcase } from '@/components/sections/FrameShowcase';
-import { LensTechnology } from '@/components/sections/LensTechnology';
-import { BeforeAfterVision } from '@/components/sections/BeforeAfterVision';
-import { EyeTestJourney } from '@/components/sections/EyeTestJourney';
-import { Appointment } from '@/components/sections/Appointment';
-import { Reviews } from '@/components/sections/Reviews';
-import { Owner } from '@/components/sections/Owner';
-import { Instagram } from '@/components/sections/Instagram';
-import { Location } from '@/components/sections/Location';
-import { Contact } from '@/components/sections/Contact';
-import { FAQ } from '@/components/sections/FAQ';
-import { GrandFinale } from '@/components/sections/GrandFinale';
-import { LensReveal } from '@/components/ui/LensReveal';
+import { ScrollManager } from '@/components/util/ScrollManager';
+import { HomePage } from '@/pages/HomePage';
 import { useLenis } from '@/hooks/useLenis';
+
+// Collection routes are code-split so the homepage bundle stays lean.
+const CollectionPage = lazy(() =>
+  import('@/pages/CollectionPage').then((m) => ({ default: m.CollectionPage }))
+);
+const ProductDetailPage = lazy(() =>
+  import('@/pages/ProductDetailPage').then((m) => ({ default: m.ProductDetailPage }))
+);
+
+function RouteFallback() {
+  return (
+    <div className="min-h-screen bg-matte flex items-center justify-center">
+      <div className="w-8 h-8 rounded-full border-2 border-white/10 border-t-mist-bright animate-spin" />
+    </div>
+  );
+}
 
 export default function App() {
   const [loading, setLoading] = useState(true);
   useLenis();
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
   return (
     <>
-     {loading && <Loader onDone={() => setLoading(false)} />}
+      {loading && <Loader onDone={() => setLoading(false)} />}
+      <ScrollManager />
       <Navbar />
 
-      <main>
-        {/* Outside World -> Entering Bajaj Optics */}
-        <Hero />
-
-        {/* The site's thesis, made physical: blur resolves into clarity */}
-        <VisionExperience />
-
-        {/* The lens-travel moment: we emerge inside the studio */}
-        <LensReveal id="about-portal" startRadius={3}>
-          <About />
-        </LensReveal>
-
-        <WhyUs />
-
-        {/* Find your frame */}
-        <FaceShapeGuide />
-
-        {/* Looking at Frames */}
-        <Products />
-        <FrameShowcase />
-        <LensTechnology />
-        <BeforeAfterVision />
-
-        {/* Eye Testing */}
-        <EyeTestJourney />
-
-        {/* Happy Customer -> Book Appointment, via a second, quieter lens moment */}
-        <LensReveal id="appointment-portal" startRadius={8}>
-          <Appointment />
-        </LensReveal>
-
-        <Reviews />
-        <Owner />
-        <Instagram />
-
-        {/* Visit Store */}
-        <Location />
-        <Contact />
-
-        <FAQ />
-        <GrandFinale />
-      </main>
+      <Suspense fallback={<RouteFallback />}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/collections/:category" element={<CollectionPage />} />
+          <Route path="/collections/:category/:slug" element={<ProductDetailPage />} />
+        </Routes>
+      </Suspense>
 
       <Footer />
       <FloatingDock />

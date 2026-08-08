@@ -19,6 +19,13 @@ export const BUSINESS = {
   mapEmbedUrl:
     'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3673.632220601156!2d76.0447065084516!3d22.96376801843799!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3963176647e6a267%3A0xb47762f84454df93!2sBajaj%20Optician!5e0!3m2!1sen!2sus!4v1786125963546!5m2!1sen!2sus',
   mapDirectionsUrl: 'https://maps.app.goo.gl/dhMQdBFnsiekXRy17',
+  // Google "write a review" link. Opens Google's OFFICIAL review flow — no fake
+  // form is ever shown. To enable the direct review box, paste your deep link:
+  //   open Google Business Profile → "Ask for reviews" → copy the short link, OR
+  //   use  https://search.google.com/local/writereview?placeid=YOUR_PLACE_ID
+  // While this is left blank, the CTA falls back to the live listing
+  // (mapDirectionsUrl), where Google's "Write a review" button is one tap away.
+  googleReviewUrl: '',
   timings: [
     { day: 'Monday – Saturday', hours: '10:00 AM – 9:00 PM' },
     { day: 'Sunday', hours: '11:00 AM – 9:00 PM' },
@@ -32,6 +39,15 @@ export const whatsappMessage = {
   eyeTest: `Hi ${BUSINESS.name}, I'd like to book a free eye test appointment.`,
   frame: (frameName: string) =>
     `Hi ${BUSINESS.name}, I'm interested in the "${frameName}" frame. Could you tell me more?`,
+  /** Pre-filled enquiry for a specific product, used by "Enquire on WhatsApp". */
+  product: (p: { name: string; id: string }, categoryTitle: string) =>
+    `Hi ${BUSINESS.name},\n\n` +
+    `I'm interested in this frame:\n\n` +
+    `Product: ${p.name}\n` +
+    `Category: ${categoryTitle}\n` +
+    `Product ID: ${p.id}\n\n` +
+    `I'd like to know more about availability, price and options.\n\n` +
+    `Please share the details.`,
 };
 
 export const NAV_LINKS = [
@@ -130,6 +146,9 @@ export const EYE_TEST_STEPS = [
   { step: '05', title: 'Done', desc: 'Walk out seeing clearly — most orders ready within days.' },
 ] as const;
 
+// PLACEHOLDER reviews — replace with verified Google reviews (name + text).
+// The rating/count above (googleRating / googleReviewCount) reflect the live
+// Google listing; update them from Google if they change.
 export const REVIEWS = [
   { name: 'Ananya Sharma', rating: 5, text: 'The eye test was thorough and the staff helped me pick frames that actually suit my face. Best optical experience in the city.' },
   { name: 'Rohit Verma', rating: 5, text: 'Walked in for a quick check-up, walked out with glasses I love. Genuinely premium service without the premium markup.' },

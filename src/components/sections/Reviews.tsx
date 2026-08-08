@@ -1,6 +1,12 @@
+import { motion } from 'framer-motion';
 import { FaStar, FaGoogle } from 'react-icons/fa';
+import { HiArrowUpRight } from 'react-icons/hi2';
 import { BUSINESS, REVIEWS } from '@/constants/business';
 import { Eyebrow, SplitReveal } from '@/components/ui/SplitReveal';
+
+/** Google's official review flow. Uses the configured write-review deep link if
+    set, otherwise the live listing where "Write a review" is one tap away. */
+const REVIEW_URL = BUSINESS.googleReviewUrl || BUSINESS.mapDirectionsUrl;
 
 function ReviewCard({ name, rating, text }: (typeof REVIEWS)[number]) {
   return (
@@ -28,7 +34,7 @@ export function Reviews() {
   const rowA = [...REVIEWS, ...REVIEWS];
   const rowB = [...REVIEWS.slice().reverse(), ...REVIEWS.slice().reverse()];
 
- return (
+  return (
     <section id="reviews" className="relative bg-matte py-14 sm:py-20 overflow-hidden">
       <div className="max-w-6xl mx-auto px-6 mb-8 flex flex-wrap items-end justify-between gap-6">
         <div>
@@ -84,6 +90,41 @@ export function Reviews() {
             <ReviewCard key={`b-${i}`} {...r} />
           ))}
         </div>
+      </div>
+
+      {/* Google review CTA — opens Google's official review flow */}
+      <div className="max-w-6xl mx-auto px-6 mt-12">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-15%' }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          className="relative overflow-hidden glass rounded-3xl px-8 py-10 sm:px-12 sm:py-12 flex flex-col sm:flex-row items-center justify-between gap-8"
+        >
+          <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_15%_20%,rgba(143,176,196,0.14),transparent_55%)]" />
+          <div className="relative text-center sm:text-left">
+            <p className="eyebrow mb-3">Enjoyed your experience?</p>
+            <h3 className="font-display font-bold text-2xl sm:text-3xl text-ivory leading-snug">
+              Share it with others.
+            </h3>
+            <p className="text-sm text-ivory/55 mt-2 max-w-md font-light">
+              A minute of your time helps another family in {BUSINESS.city} find us. Reviews are posted through Google.
+            </p>
+          </div>
+
+          <a
+            href={REVIEW_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="relative group shrink-0 inline-flex items-center gap-3 rounded-full bg-mist-bright text-matte px-7 py-4 text-sm font-medium tracking-wide transition-transform hover:scale-[1.03] active:scale-95"
+          >
+            <span className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
+              <FaGoogle className="text-charcoal" size={12} />
+            </span>
+            Leave a Google Review
+            <HiArrowUpRight size={15} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          </a>
+        </motion.div>
       </div>
     </section>
   );
