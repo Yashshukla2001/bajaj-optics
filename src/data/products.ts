@@ -17,22 +17,71 @@ function u(id: string, w = 900): string {
   return `https://images.unsplash.com/photo-${id}?w=${w}&q=80&auto=format&fit=crop`;
 }
 
-// A curated pool of eyewear photos (ids already proven in this project).
+// ---- Images ---------------------------------------------------------------
+// ONLY verified, license-clear Unsplash photos that this project already uses
+// live (the same ids as the homepage category tiles + frame showcase), so no
+// product can ever end up with a broken image. Each category is matched to a
+// photo of THAT product type — sunglasses show sunglasses, lenses show lenses,
+// and so on. Swap any id here to change every product in that category.
+
+// Verified per-category photo (from PRODUCT_CATEGORIES — correct subject matter)
+const CAT_ID: Record<Exclude<CategoryId, 'smart-glasses'>, string> = {
+  sunglasses: '1523884156331-22cc4f5df98d',
+  prescription: '1556306510-31ca015374b0',
+  bluecut: '1746329545447-1312bd2f01ca',
+  kids: '1685950925275-281298061f98',
+  office: '1758874383352-481f911951aa',
+  'contact-lens': '1573569986767-6c832cc6868c',
+};
+
+// Verified neutral eyeglass-frame photos (from the homepage Frame Showcase).
+// Used to add genuine variety across prescription / blue-cut / office frames.
+const FRAME_IDS = [
+  '1494005826588-25b58776edbc',
+  '1601638058835-43cc7efe2d43',
+  '1589176449149-71f7ea77ec25',
+  '1614179818428-220dcc46fe8c',
+  '1516714819001-8ee7a13b71d7',
+];
+
+const CAT_IMG = Object.fromEntries(
+  Object.entries(CAT_ID).map(([k, id]) => [k, u(id)])
+) as Record<Exclude<CategoryId, 'smart-glasses'>, string>;
+const FRAMES = FRAME_IDS.map((id) => u(id));
+
+// Eyones smart-glasses use the project's own branded photography.
+const SMART_IMGS: string[][] = [
+  [eyonesHero, eyonesFeatures],
+  [eyonesFeatures, eyonesBranding],
+  [eyonesBranding, eyonesHero],
+];
+
+/**
+ * Chooses genuine, category-appropriate images for a product. Sunglasses, kids
+ * and contact-lens stay locked to their exact-subject photo; eyeglass frames
+ * (prescription / blue-cut / office) rotate through the verified frame shots so
+ * the grid feels varied without ever showing the wrong kind of product.
+ */
+function imagesFor(category: CategoryId, i: number): string[] {
+  if (category === 'smart-glasses') return SMART_IMGS[i % SMART_IMGS.length];
+  if (category === 'sunglasses' || category === 'kids' || category === 'contact-lens') {
+    return [CAT_IMG[category]];
+  }
+  return [FRAMES[i % FRAMES.length], CAT_IMG[category as Exclude<CategoryId, 'smart-glasses'>]];
+}
+
+// Back-compat shim: product rows below still pass an `imgs` field for
+// readability, but images are now assigned centrally by imagesFor(). These
+// verified ids keep those expressions valid; their values are not used.
 const POOL = {
-  sun: ['1523884156331-22cc4f5df98d', '1511499767150-a48a237f0083', '1577803645773-f96470509666'],
-  presc: ['1556306510-31ca015374b0', '1574258495973-f010dfbb5371', '1591076482161-42ce6da69f67'],
-  blue: ['1746329545447-1312bd2f01ca', '1577744486770-020ab432da65', '1633621623802-9f01a5f2c3b0'],
-  kids: ['1685950925275-281298061f98', '1596492784531-6e6eb5ea9993', '1633621533308-8760a4b53d1f'],
-  office: ['1758874383352-481f911951aa', '1508296695146-257a814070b4', '1483412033650-1015ddeb83d1'],
-  lens: ['1573569986767-6c832cc6868c', '1587400988570-89c39d0c1c1c', '1631815588090-d4bfec5b1ccb'],
-  frame: [
-    '1494005826588-25b58776edbc',
-    '1601638058835-43cc7efe2d43',
-    '1589176449149-71f7ea77ec25',
-    '1614179818428-220dcc46fe8c',
-    '1516714819001-8ee7a13b71d7',
-  ],
-} as const;
+  sun: [CAT_ID.sunglasses],
+  presc: [CAT_ID.prescription],
+  blue: [CAT_ID.bluecut],
+  kids: [CAT_ID.kids],
+  office: [CAT_ID.office],
+  lens: [CAT_ID['contact-lens']],
+  frame: FRAME_IDS,
+};
 
 function slugify(name: string): string {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -53,7 +102,7 @@ interface Row {
   featured?: boolean;
   tags?: string[];
   availability?: Product['availability'];
-  imgs: string[]; // resolved image URLs
+  imgs?: string[]; // ignored — images are assigned per category by imagesFor()
 }
 
 function build(category: CategoryId, prefix: string, rows: Row[]): Product[] {
@@ -66,7 +115,7 @@ function build(category: CategoryId, prefix: string, rows: Row[]): Product[] {
       r.tags?.includes('premium')
         ? `A signature ${(r.shape ?? 'frame').toLowerCase()} silhouette, hand-finished in ${r.material ?? 'premium materials'}. Part of our premium line — built to be noticed and to last.`
         : `A refined ${(r.shape ?? 'frame').toLowerCase()} profile in ${r.material ?? 'quality materials'}, tuned for everyday comfort and a clean, considered look.`,
-    images: r.imgs,
+    images: imagesFor(category, i),
     price: r.price,
     frameShape: r.shape,
     frameMaterial: r.material,
