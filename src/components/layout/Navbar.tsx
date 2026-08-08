@@ -1,95 +1,154 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HiXMark, HiBars3, HiChevronDown } from 'react-icons/hi2';
+import { HiXMark, HiBars3, HiChevronDown, HiMagnifyingGlass, HiOutlineHeart, HiChevronRight } from 'react-icons/hi2';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { NAV_LINKS, whatsappMessage } from '@/constants/business';
-import { COLLECTION_CATEGORIES } from '@/data/products';
+import { COLLECTION_CATEGORIES, PRODUCTS, getCategoryMeta } from '@/data/products';
+import type { CategoryId } from '@/types/product';
 import { buildWhatsAppLink } from '@/utils/whatsapp';
+import { megaGroupsFor, tagLabel } from '@/utils/catalog';
+import { useWishlist } from '@/hooks/useWishlist';
+import { ProductImage } from '@/components/collection/ProductImage';
 import logoIcon from '@/assets/images/logo-color-icon-pill (1).png';
 
+const EASE = [0.16, 1, 0.3, 1] as const;
+
+// Order categories for the shop bar (sunglasses first, smart glasses last).
+const CAT_ORDER: CategoryId[] = ['sunglasses', 'prescription', 'bluecut', 'office', 'kids', 'contact-lens', 'smart-glasses'];
+const SHOP_CATS = CAT_ORDER
+  .map((id) => COLLECTION_CATEGORIES.find((c) => c.id === id))
+  .filter((c): c is NonNullable<typeof c> => !!c);
+
+// Page/section quick links (the shop lives in the category bar below).
+const PAGE_LINKS = NAV_LINKS.filter((l) => !['collection', 'frames'].includes(l.href.replace('#', '')));
+
 function LensLogo() {
-  return <img src={logoIcon} alt="" aria-hidden className="h-9 sm:h-10 w-auto shrink-0" />;
+  return <img src={logoIcon} alt="Bajaj Optics" className="h-9 sm:h-10 w-auto shrink-0" />;
 }
 
-function useActiveSection() {
-  const [active, setActive] = useState<string>('');
-  const lockedUntil = useRef(0);
+// ---- Search with live product suggestions ---------------------------------
+function SearchBox({ onNavigate, autoFocus }: { onNavigate?: () => void; autoFocus?: boolean }) {
+  const [q, setQ] = useState('');
+  const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const ids = NAV_LINKS.map((l) => l.href.replace('#', ''));
-    const els = ids.map((id) => document.getElementById(id)).filter((el): el is HTMLElement => !!el);
-    if (!els.length) return;
+  const results = useMemo(() => {
+    const s = q.trim().toLowerCase();
+    if (s.length < 2) return [];
+    return PRODUCTS.filter((p) =>
+      [p.name, p.frameShape, p.frameMaterial, p.color, p.category].filter(Boolean).join(' ').toLowerCase().includes(s)
+    ).slice(0, 6);
+  }, [q]);
 
-    let raf = 0;
-
-    function computeActive() {
-      if (performance.now() < lockedUntil.current) return;
-      const navHeight = parseInt(
-        getComputedStyle(document.documentElement).getPropertyValue('--navbar-height') || '64',
-        10
-      );
-      const line = navHeight + 40;
-
-      let current = els[0].id;
-      for (const el of els) {
-        if (el.getBoundingClientRect().top <= line) current = el.id;
-      }
-      setActive((prev) => (prev === current ? prev : current));
-    }
-
-    function onScroll() {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(computeActive);
-    }
-
-    computeActive();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
-      cancelAnimationFrame(raf);
-    };
-  }, []);
-
-  function setManualActive(id: string) {
-    lockedUntil.current = performance.now() + 1200;
-    setActive(id);
+  function go(to: string) {
+    setQ('');
+    setOpen(false);
+    onNavigate?.();
+    navigate(to);
   }
 
-  return { active, setManualActive };
+  return (
+    <div className="relative w-full">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (results[0]) go(`/collections/${results[0].category}/${results[0].slug}`);
+        }}
+      >
+        <HiMagnifyingGlass className="absolute left-4 top-1/2 -translate-y-1/2 text-ivory/40" size={16} />
+        <input
+          value={q}
+          autoFocus={autoFocus}
+          onChange={(e) => { setQ(e.target.value); setOpen(true); }}
+          onFocus={() => setOpen(true)}
+          onBlur={() => setTimeout(() => setOpen(false), 150)}
+          placeholder="Search frames, shapes, colours…"
+          aria-label="Search products"
+          className="w-full glass rounded-full pl-11 pr-10 py-2.5 text-sm text-ivory placeholder:text-ivory/35 focus:outline-none focus:border-mist-bright/40"
+        />
+        {q && (
+          <button type="button" onClick={() => setQ('')} aria-label="Clear" className="absolute right-3.5 top-1/2 -translate-y-1/2 text-ivory/40 hover:text-ivory">
+            <HiXMark size={16} />
+          </button>
+        )}
+      </form>
+
+      <AnimatePresence>
+        {open && results.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }}
+            transition={{ duration: 0.2 }}
+            className="absolute top-full mt-2 inset-x-0 glass-light rounded-2xl p-2 shadow-[0_20px_50px_rgba(0,0,0,0.45)] z-[80]"
+          >
+            {results.map((p) => (
+              <button key={p.id} onMouseDown={() => go(`/collections/${p.category}/${p.slug}`)}
+                className="flex items-center gap-3 w-full rounded-xl p-2 hover:bg-white/5 transition-colors text-left">
+                <span className="w-11 h-11 rounded-lg overflow-hidden shrink-0">
+                  <ProductImage src={p.images[0]} alt="" className="w-full h-full object-cover" sizes="44px" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-sm text-ivory truncate">{p.name}</span>
+                  <span className="block text-[0.68rem] text-ivory/45 truncate">
+                    {getCategoryMeta(p.category)?.title} · {p.frameShape}
+                  </span>
+                </span>
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 }
 
-/** Scrolls to a section through Lenis, accounting for the navbar's real height. */
+// ---- Mega-menu panel for one category -------------------------------------
+function CategoryMega({ catId }: { catId: CategoryId }) {
+  const meta = getCategoryMeta(catId)!;
+  const groups = megaGroupsFor(catId);
+  return (
+    <div className="glass-light rounded-2xl p-5 w-[32rem] shadow-[0_24px_60px_rgba(0,0,0,0.5)]">
+      <div className="flex gap-6">
+        {groups.map((g) => (
+          <div key={g.label} className="min-w-[8rem]">
+            <p className="eyebrow !text-[0.58rem] mb-2.5">{g.label}</p>
+            <div className="flex flex-col gap-1">
+              {g.items.map((item) => (
+                <Link key={item} to={`/collections/${catId}?${g.param}=${encodeURIComponent(item)}`}
+                  className="text-[0.82rem] text-ivory/65 hover:text-mist-bright transition-colors">
+                  {g.param === 'collection' ? tagLabel(item) : item}
+                </Link>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <Link to={`/collections/${catId}`} className="mt-4 inline-flex items-center gap-1.5 text-[0.8rem] text-mist-bright hover:text-ivory transition-colors">
+        View all {meta.title} <HiChevronRight size={13} />
+      </Link>
+    </div>
+  );
+}
+
 function scrollToSection(id: string) {
   const el = document.getElementById(id);
   if (!el) return;
-  const navHeight = parseInt(
-    getComputedStyle(document.documentElement).getPropertyValue('--navbar-height') || '64',
-    10
-  );
+  const navHeight = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--navbar-height') || '64', 10);
   const lenis = (window as any).__lenis;
-  if (lenis?.scrollTo) {
-    lenis.scrollTo(el, { offset: -(navHeight + 16), duration: 1.1 });
-  } else {
-    const y = el.getBoundingClientRect().top + window.scrollY - (navHeight + 16);
-    window.scrollTo({ top: y, behavior: 'smooth' });
-  }
-  history.replaceState(null, '', `#${id}`);
+  if (lenis?.scrollTo) lenis.scrollTo(el, { offset: -(navHeight + 16), duration: 1.1 });
+  else window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - (navHeight + 16), behavior: 'smooth' });
 }
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  const [collectionOpen, setCollectionOpen] = useState(false);
-  const { active, setManualActive } = useActiveSection();
+  const [mobileSearch, setMobileSearch] = useState(false);
+  const [activeCat, setActiveCat] = useState<CategoryId | null>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const onHome = location.pathname === '/';
+  const { count } = useWishlist();
 
-  // The bar is solid whenever we're not over the homepage hero, so page
-  // content always scrolls cleanly *behind* it rather than showing through.
   const showBg = !onHome || scrolled;
 
   useEffect(() => {
@@ -99,48 +158,28 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Close both menus whenever the route changes.
-  useEffect(() => {
-    setCollectionOpen(false);
-    setOpen(false);
-  }, [location.pathname]);
+  useEffect(() => { setActiveCat(null); setOpen(false); }, [location.pathname, location.search]);
 
-  // Publish the real navbar height so every page can offset content below it.
   useEffect(() => {
-    function setHeight() {
-      const h = headerRef.current?.offsetHeight ?? 64;
-      document.documentElement.style.setProperty('--navbar-height', `${h}px`);
-    }
+    const setHeight = () => document.documentElement.style.setProperty('--navbar-height', `${headerRef.current?.offsetHeight ?? 64}px`);
     setHeight();
     window.addEventListener('resize', setHeight);
     return () => window.removeEventListener('resize', setHeight);
   }, [showBg]);
 
-  // Route-aware section navigation: if we're on a collection/detail page, go
-  // home first (ScrollManager then glides to the section); otherwise scroll now.
-  function handleNavClick(e: React.MouseEvent, id: string) {
+  function handlePageLink(e: React.MouseEvent, id: string) {
     e.preventDefault();
-    setCollectionOpen(false);
-    if (!onHome) {
-      navigate(id === 'top' ? '/' : `/#${id}`);
-      return;
-    }
-    setManualActive(id);
+    if (!onHome) { navigate(id === 'top' ? '/' : `/#${id}`); return; }
     if (id === 'top') window.scrollTo({ top: 0, behavior: 'smooth' });
     else scrollToSection(id);
   }
 
   return (
     <>
-      <motion.header
-        ref={headerRef}
-        initial={{ y: -40, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed top-0 inset-x-0 z-50"
-      >
+      <motion.header ref={headerRef} initial={{ y: -40, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.7, ease: EASE }} className="fixed top-0 inset-x-0 z-50">
         <motion.div
-          animate={{ backgroundColor: showBg ? 'rgba(10,11,13,0.82)' : 'rgba(10,11,13,0)' }}
+          animate={{ backgroundColor: showBg ? 'rgba(10,11,13,0.9)' : 'rgba(10,11,13,0)' }}
           transition={{ duration: 0.35 }}
           style={{
             backdropFilter: showBg ? 'blur(16px) saturate(140%)' : 'none',
@@ -148,195 +187,131 @@ export function Navbar() {
             borderBottom: showBg ? '1px solid rgba(246,243,238,0.08)' : '1px solid rgba(246,243,238,0)',
           }}
           className="w-full"
+          onMouseLeave={() => setActiveCat(null)}
         >
-          <div className="max-w-7xl mx-auto flex items-center justify-between px-5 sm:px-8 py-3">
-            <a href="#top" onClick={(e) => handleNavClick(e, 'top')} className="flex items-center shrink-0">
+          {/* Row 1 — logo · search · actions */}
+          <div className="max-w-7xl mx-auto flex items-center gap-4 px-5 sm:px-8 py-3">
+            <a href="#top" onClick={(e) => handlePageLink(e, 'top')} className="flex items-center shrink-0">
               <LensLogo />
             </a>
 
-            {/* Center — quiet text nav; the "Collection" entry expands into categories */}
-            <nav className="hidden md:flex items-center gap-7">
-              {NAV_LINKS.map((link) => {
-                const id = link.href.replace('#', '');
-                const isActive = active === id;
-                const isCollection = id === 'collection';
+            <div className="hidden md:block flex-1 max-w-md mx-auto">
+              <SearchBox />
+            </div>
 
-                if (isCollection) {
-                  return (
-                    <div
-                      key={link.href}
-                      className="relative flex flex-col items-center"
-                      onMouseEnter={() => setCollectionOpen(true)}
-                      onMouseLeave={() => setCollectionOpen(false)}
-                    >
-                      <a
-                        href={link.href}
-                        onClick={(e) => handleNavClick(e, id)}
-                        className="relative flex flex-col items-center gap-1.5 py-2"
-                      >
-                        <span
-                          className={`w-1 h-1 rounded-full transition-all duration-300 ${
-                            isActive ? 'bg-mist-bright opacity-100 scale-100' : 'bg-mist-bright opacity-0 scale-50'
-                          }`}
-                        />
-                        <span
-                          className={`flex items-center gap-1 text-[0.72rem] tracking-wide transition-colors duration-300 ${
-                            isActive ? 'text-ivory' : 'text-ivory/50 hover:text-ivory/80'
-                          }`}
-                        >
-                          {link.label}
-                          <HiChevronDown
-                            size={11}
-                            className={`opacity-60 transition-transform duration-300 ${collectionOpen ? 'rotate-180' : ''}`}
-                          />
-                        </span>
-                      </a>
+            <div className="ml-auto flex items-center gap-2 sm:gap-3 shrink-0">
+              <Link to="/wishlist" aria-label="Wishlist" className="relative w-9 h-9 flex items-center justify-center text-ivory/80 hover:text-mist-bright transition-colors">
+                <HiOutlineHeart size={20} />
+                {count > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[1rem] h-4 px-1 rounded-full bg-mist-bright text-matte text-[0.58rem] font-medium flex items-center justify-center">
+                    {count}
+                  </span>
+                )}
+              </Link>
 
-                      {/* Dropdown — state-controlled so it closes on select & on navigation */}
-                      <AnimatePresence>
-                        {collectionOpen && (
-                          <motion.div
-                            initial={{ opacity: 0, y: 6 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 6 }}
-                            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-                            className="absolute top-full pt-3 left-1/2 -translate-x-1/2"
-                          >
-                            <div className="glass-light rounded-2xl p-2 w-56 shadow-[0_20px_50px_rgba(0,0,0,0.45)]">
-                              {COLLECTION_CATEGORIES.map((c) => (
-                                <Link
-                                  key={c.id}
-                                  to={`/collections/${c.id}`}
-                                  onClick={() => setCollectionOpen(false)}
-                                  className="block rounded-xl px-3.5 py-2.5 text-[0.8rem] text-ivory/70 hover:text-ivory hover:bg-white/5 transition-colors"
-                                >
-                                  {c.title}
-                                </Link>
-                              ))}
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                  );
-                }
-
-                return (
-                  <a
-                    key={link.href}
-                    href={link.href}
-                    onClick={(e) => handleNavClick(e, id)}
-                    className="relative flex flex-col items-center gap-1.5 py-2"
-                  >
-                    <span
-                      className={`w-1 h-1 rounded-full transition-all duration-300 ${
-                        isActive ? 'bg-mist-bright opacity-100 scale-100' : 'bg-mist-bright opacity-0 scale-50'
-                      }`}
-                    />
-                    <span
-                      className={`text-[0.72rem] tracking-wide transition-colors duration-300 ${
-                        isActive ? 'text-ivory' : 'text-ivory/50 hover:text-ivory/80'
-                      }`}
-                    >
-                      {link.label}
-                    </span>
-                  </a>
-                );
-              })}
-            </nav>
-
-            <div className="flex items-center gap-3 shrink-0">
-              <a
-                href={buildWhatsAppLink(whatsappMessage.eyeTest)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hidden md:inline-flex items-center rounded-full bg-mist-bright text-matte px-5 py-2.5 text-xs font-medium tracking-wide hover:bg-ivory transition-colors"
-              >
+              <a href={buildWhatsAppLink(whatsappMessage.eyeTest)} target="_blank" rel="noopener noreferrer"
+                className="hidden md:inline-flex items-center rounded-full bg-mist-bright text-matte px-5 py-2.5 text-xs font-medium tracking-wide hover:bg-ivory transition-colors">
                 Book Eye Test
               </a>
 
-              <button
-                onClick={() => setOpen(true)}
-                aria-label="Open menu"
-                className="md:hidden w-9 h-9 flex items-center justify-center text-ivory"
-              >
+              <button onClick={() => setMobileSearch((s) => !s)} aria-label="Search" className="md:hidden w-9 h-9 flex items-center justify-center text-ivory">
+                <HiMagnifyingGlass size={19} />
+              </button>
+              <button onClick={() => setOpen(true)} aria-label="Open menu" className="md:hidden w-9 h-9 flex items-center justify-center text-ivory">
                 <HiBars3 size={20} />
               </button>
+            </div>
+          </div>
+
+          {/* Mobile inline search */}
+          <AnimatePresence>
+            {mobileSearch && (
+              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+                className="md:hidden overflow-visible px-5 pb-3">
+                <SearchBox autoFocus onNavigate={() => setMobileSearch(false)} />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Row 2 — category mega-menu bar (desktop) */}
+          <div className="hidden md:block border-t border-white/5">
+            <div className="max-w-7xl mx-auto px-5 sm:px-8 flex items-center justify-between">
+              <nav className="flex items-center gap-6">
+                {SHOP_CATS.map((c) => (
+                  <div key={c.id} className="relative" onMouseEnter={() => setActiveCat(c.id)}>
+                    <Link to={`/collections/${c.id}`}
+                      className={`flex items-center gap-1 py-3 text-[0.74rem] tracking-wide transition-colors ${activeCat === c.id ? 'text-mist-bright' : 'text-ivory/70 hover:text-ivory'}`}>
+                      {c.title}
+                      {megaGroupsFor(c.id).length > 0 && (
+                        <HiChevronDown size={11} className={`opacity-60 transition-transform ${activeCat === c.id ? 'rotate-180' : ''}`} />
+                      )}
+                    </Link>
+                    <AnimatePresence>
+                      {activeCat === c.id && (
+                        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }}
+                          transition={{ duration: 0.22, ease: EASE }} className="absolute top-full left-0 pt-2 z-[60]">
+                          <CategoryMega catId={c.id} />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                ))}
+              </nav>
+
+              <nav className="flex items-center gap-5">
+                {PAGE_LINKS.map((l) => (
+                  <a key={l.href} href={l.href} onClick={(e) => handlePageLink(e, l.href.replace('#', ''))}
+                    className="py-3 text-[0.72rem] tracking-wide text-ivory/50 hover:text-ivory/85 transition-colors">
+                    {l.label}
+                  </a>
+                ))}
+              </nav>
             </div>
           </div>
         </motion.div>
       </motion.header>
 
+      {/* Mobile full menu */}
       <AnimatePresence>
         {open && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-[60] bg-matte flex flex-col"
-          >
-            <div className="flex items-center justify-between px-6 py-6 border-b border-white/8">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-[60] bg-matte flex flex-col">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-white/8">
               <LensLogo />
-              <button
-                onClick={() => setOpen(false)}
-                aria-label="Close menu"
-                className="w-9 h-9 flex items-center justify-center text-ivory"
-              >
+              <button onClick={() => setOpen(false)} aria-label="Close menu" className="w-9 h-9 flex items-center justify-center text-ivory">
                 <HiXMark size={22} />
               </button>
             </div>
 
-            <nav className="flex-1 overflow-y-auto no-scrollbar flex flex-col justify-center px-8 gap-1">
-              {NAV_LINKS.map((link, i) => {
-                const id = link.href.replace('#', '');
-                return (
-                  <motion.a
-                    key={link.href}
-                    href={link.href}
-                    onClick={(e) => {
-                      handleNavClick(e, id);
-                      setOpen(false);
-                    }}
-                    initial={{ opacity: 0, x: -16 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.06, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                    className="font-display font-bold text-3xl text-ivory/80 hover:text-mist-bright transition-colors py-3 border-b border-white/8"
-                  >
-                    {link.label}
-                  </motion.a>
-                );
-              })}
+            <div className="px-6 pt-4"><SearchBox onNavigate={() => setOpen(false)} /></div>
 
-              <motion.div
-                initial={{ opacity: 0, x: -16 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: NAV_LINKS.length * 0.06, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                className="mt-6"
-              >
-                <p className="eyebrow !text-[0.6rem] mb-3">Shop by Category</p>
-                <div className="flex flex-col gap-1">
-                  {COLLECTION_CATEGORIES.map((c) => (
-                    <Link
-                      key={c.id}
-                      to={`/collections/${c.id}`}
-                      onClick={() => setOpen(false)}
-                      className="text-base text-ivory/65 hover:text-mist-bright transition-colors py-1.5"
-                    >
-                      {c.title}
-                    </Link>
-                  ))}
-                </div>
-              </motion.div>
+            <nav className="flex-1 overflow-y-auto no-scrollbar px-6 py-5">
+              <p className="eyebrow !text-[0.6rem] mb-3">Shop by Category</p>
+              <div className="flex flex-col">
+                {SHOP_CATS.map((c) => (
+                  <Link key={c.id} to={`/collections/${c.id}`} onClick={() => setOpen(false)}
+                    className="flex items-center justify-between py-3 border-b border-white/8 font-display font-bold text-xl text-ivory/85 hover:text-mist-bright transition-colors">
+                    {c.title} <HiChevronRight size={16} className="text-ivory/30" />
+                  </Link>
+                ))}
+              </div>
+
+              <p className="eyebrow !text-[0.6rem] mt-6 mb-2">More</p>
+              <div className="flex flex-col">
+                {PAGE_LINKS.map((l) => (
+                  <a key={l.href} href={l.href} onClick={(e) => { handlePageLink(e, l.href.replace('#', '')); setOpen(false); }}
+                    className="py-2.5 text-base text-ivory/65 hover:text-mist-bright transition-colors">
+                    {l.label}
+                  </a>
+                ))}
+                <Link to="/wishlist" onClick={() => setOpen(false)} className="py-2.5 text-base text-ivory/65 hover:text-mist-bright transition-colors">
+                  Wishlist{count > 0 ? ` (${count})` : ''}
+                </Link>
+              </div>
             </nav>
 
-            <a
-              href={buildWhatsAppLink(whatsappMessage.eyeTest)}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => setOpen(false)}
-              className="mx-8 mb-10 text-center rounded-full bg-mist-bright text-matte py-4 text-sm font-medium"
-            >
+            <a href={buildWhatsAppLink(whatsappMessage.eyeTest)} target="_blank" rel="noopener noreferrer" onClick={() => setOpen(false)}
+              className="mx-6 mb-8 text-center rounded-full bg-mist-bright text-matte py-4 text-sm font-medium">
               Book Eye Test
             </a>
           </motion.div>

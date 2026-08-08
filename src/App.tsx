@@ -15,6 +15,9 @@ const CollectionPage = lazy(() =>
 const ProductDetailPage = lazy(() =>
   import('@/pages/ProductDetailPage').then((m) => ({ default: m.ProductDetailPage }))
 );
+const WishlistPage = lazy(() =>
+  import('@/pages/WishlistPage').then((m) => ({ default: m.WishlistPage }))
+);
 
 function RouteFallback() {
   return (
@@ -39,6 +42,7 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/collections/:category" element={<CollectionPage />} />
           <Route path="/collections/:category/:slug" element={<ProductDetailPage />} />
+          <Route path="/wishlist" element={<WishlistPage />} />
         </Routes>
       </Suspense>
 
