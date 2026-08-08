@@ -5,6 +5,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { FloatingDock } from '@/components/layout/FloatingDock';
 import { ScrollManager } from '@/components/util/ScrollManager';
+import { ReviewModal } from '@/components/ReviewModal';
 import { HomePage } from '@/pages/HomePage';
 import { useLenis } from '@/hooks/useLenis';
 
@@ -48,6 +49,7 @@ export default function App() {
 
       <Footer />
       <FloatingDock />
+      {!loading && <ReviewModal />}
     </>
   );
 }
