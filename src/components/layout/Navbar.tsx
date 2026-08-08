@@ -124,8 +124,8 @@ function CategoryMega({ catId }: { catId: CategoryId }) {
   const meta = getCategoryMeta(catId)!;
   const groups = megaGroupsFor(catId);
   return (
-    <div className="glass-light rounded-2xl p-5 w-[min(32rem,calc(100vw-2rem))] shadow-[0_24px_60px_rgba(0,0,0,0.5)]">
-      <div className="flex flex-wrap gap-x-6 gap-y-4">
+    <div className="rounded-2xl p-5 w-max max-w-[calc(100vw-1.5rem)] bg-charcoal border border-white/10 shadow-[0_24px_60px_rgba(0,0,0,0.65)]">
+      <div className="flex gap-7">
         {groups.map((g) => (
           <div key={g.label} className="min-w-[8rem]">
             <p className="eyebrow !text-[0.58rem] mb-2.5">{g.label}</p>
@@ -161,6 +161,7 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
   const [mobileSearch, setMobileSearch] = useState(false);
   const [activeCat, setActiveCat] = useState<CategoryId | null>(null);
+  const [menuLeft, setMenuLeft] = useState(0);
   const headerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -187,6 +188,19 @@ export function Navbar() {
     window.addEventListener('resize', setHeight);
     return () => window.removeEventListener('resize', setHeight);
   }, [showBg, atHeroTop, location.pathname]);
+
+  // Open a category menu and place its panel so it always stays on-screen —
+  // measured from the hovered item, clamped to the viewport on both edges.
+  function openCat(id: CategoryId, el: HTMLElement) {
+    setActiveCat(id);
+    const rect = el.getBoundingClientRect();
+    const panelW = Math.min(512, window.innerWidth - 32); // matches CategoryMega width
+    const margin = 12;
+    let vpLeft = rect.left;
+    if (vpLeft + panelW > window.innerWidth - margin) vpLeft = window.innerWidth - margin - panelW;
+    if (vpLeft < margin) vpLeft = margin;
+    setMenuLeft(vpLeft - rect.left); // convert to offset local to the item
+  }
 
   function handlePageLink(e: React.MouseEvent, id: string) {
     e.preventDefault();
@@ -279,10 +293,8 @@ export function Navbar() {
               >
                 <div className="max-w-7xl mx-auto px-4 sm:px-8 flex items-center justify-between gap-4">
               <nav className="flex items-center gap-3 lg:gap-6 min-w-0">
-                {SHOP_CATS.map((c, ci) => {
-                  const alignRight = ci >= SHOP_CATS.length - 2;
-                  return (
-                  <div key={c.id} className="relative shrink-0" onMouseEnter={() => setActiveCat(c.id)}>
+                {SHOP_CATS.map((c) => (
+                  <div key={c.id} className="relative shrink-0" onMouseEnter={(e) => openCat(c.id, e.currentTarget)}>
                     <Link to={`/collections/${c.id}`}
                       className={`flex items-center gap-1 py-3 text-[0.7rem] lg:text-[0.74rem] tracking-wide whitespace-nowrap transition-colors ${activeCat === c.id ? 'text-mist-bright' : 'text-ivory/70 hover:text-ivory'}`}>
                       {NAV_LABEL[c.id] ?? c.title}
@@ -293,14 +305,13 @@ export function Navbar() {
                     <AnimatePresence>
                       {activeCat === c.id && (
                         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }}
-                          transition={{ duration: 0.22, ease: EASE }} className={`absolute top-full pt-2 z-[60] ${alignRight ? 'right-0' : 'left-0'}`}>
+                          transition={{ duration: 0.22, ease: EASE }} style={{ left: menuLeft }} className="absolute top-full pt-2 z-[60]">
                           <CategoryMega catId={c.id} />
                         </motion.div>
                       )}
                     </AnimatePresence>
                   </div>
-                  );
-                })}
+                ))}
               </nav>
             </div>
               </motion.div>
