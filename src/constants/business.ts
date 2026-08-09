@@ -158,11 +158,11 @@ export const REVIEWS = [
 ] as const;
 
 export const OWNER = {
-  name: 'Jeetu Bajaj',
+  name: 'Jitu Bajaj',
   role: 'Founder & Chief Optometrist',
   quote:
     'Every pair of glasses we hand over carries a promise — that you will see the world a little more clearly than you did yesterday.',
-  bio: `Jeetu started Bajaj Optics in 2007 with a single chair and a single promise: honest eye care. Two decades later, that promise hasn't changed — only the number of families who trust it.`,
+  bio: `Jitu started Bajaj Optics in 2007 with a single chair and a single promise: honest eye care. Two decades later, that promise hasn't changed — only the number of families who trust it.`,
 };
 
 export const FACE_SHAPES = [
